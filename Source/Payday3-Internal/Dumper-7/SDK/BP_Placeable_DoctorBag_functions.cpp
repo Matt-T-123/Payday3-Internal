@@ -14,8 +14,7 @@
 #include "BP_Placeable_DoctorBag_parameters.hpp"
 
 
-namespace SDK
-{
+SDK_NAMESPACE_START
 
 // Function BP_Placeable_DoctorBag.BP_Placeable_DoctorBag_C.ExecuteUbergraph_BP_Placeable_DoctorBag
 // (Final, UbergraphFunction, HasDefaults)
@@ -222,5 +221,5 @@ void ABP_Placeable_DoctorBag_C::UpdateCharges(float NewChargeCount)
 	UObject::ProcessEvent(Func, &Parms);
 }
 
-}
 
+SDK_NAMESPACE_END

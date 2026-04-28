@@ -16,8 +16,8 @@
 #include "CoreUObject_structs.hpp"
 
 
-namespace SDK::Params
-{
+SDK_NAMESPACE_START
+SDK_PARAM_NAMESPACE_START
 
 // Function WBP_UI_Widget_SpeedLockpicking_QoL.WBP_UI_Widget_SpeedLockpicking_QoL_C.ExecuteUbergraph_WBP_UI_Widget_SpeedLockpicking_QoL
 // 0x0428 (0x0428 - 0x0000)
@@ -461,5 +461,5 @@ public:
 	bool                                          CallFunc_InRange_FloatFloat_ReturnValue;           // 0x0050(0x0001)(ZeroConstructor, IsPlainOldData, NoDestructor)
 };
 
-}
-
+SDK_PARAM_NAMESPACE_END
+SDK_NAMESPACE_END

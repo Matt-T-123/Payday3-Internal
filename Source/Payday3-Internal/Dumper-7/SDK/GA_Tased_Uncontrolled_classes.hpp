@@ -14,8 +14,7 @@
 #include "Starbreeze_classes.hpp"
 
 
-namespace SDK
-{
+SDK_NAMESPACE_START
 
 // BlueprintGeneratedClass GA_Tased_Uncontrolled.GA_Tased_Uncontrolled_C
 // 0x0008 (0x0538 - 0x0530)
@@ -43,5 +42,4 @@ public:
 	}
 };
 
-}
-
+SDK_NAMESPACE_END

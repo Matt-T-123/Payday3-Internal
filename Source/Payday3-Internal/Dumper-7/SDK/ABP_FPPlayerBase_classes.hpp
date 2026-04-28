@@ -11,17 +11,17 @@
 #include "Basic.hpp"
 
 #include "Engine_structs.hpp"
+#include "CoreUObject_structs.hpp"
+#include "ControlRig_structs.hpp"
 #include "Starbreeze_structs.hpp"
 #include "Starbreeze_classes.hpp"
-#include "ControlRig_structs.hpp"
 #include "AnimGraphRuntime_structs.hpp"
 
 
-namespace SDK
-{
+SDK_NAMESPACE_START
 
 // AnimBlueprintGeneratedClass ABP_FPPlayerBase.ABP_FPPlayerBase_C
-// 0x33F0 (0x38F0 - 0x0500)
+// 0x3680 (0x3B80 - 0x0500)
 class UABP_FPPlayerBase_C : public USBZPlayerAnimationFPP
 {
 public:
@@ -56,42 +56,49 @@ public:
 	struct FAnimNode_ConvertComponentToLocalSpace AnimGraphNode_ComponentToLocalSpace;               // 0x19F0(0x0030)()
 	struct FAnimNode_TwoBoneIK                    AnimGraphNode_TwoBoneIK;                           // 0x1A20(0x0240)()
 	struct FAnimNode_Slot                         AnimGraphNode_Slot_2;                              // 0x1C60(0x0060)()
-	struct FAnimNode_ModifyBone                   AnimGraphNode_ModifyBone_3;                        // 0x1CC0(0x0138)()
-	struct FAnimNode_ModifyBone                   AnimGraphNode_ModifyBone_2;                        // 0x1DF8(0x0138)()
-	struct FAnimNode_LayeredBoneBlend             AnimGraphNode_LayeredBoneBlend_4;                  // 0x1F30(0x00E8)()
-	struct FAnimNode_SaveCachedPose               AnimGraphNode_SaveCachedPose_1;                    // 0x2018(0x0168)()
-	struct FAnimNode_UseCachedPose                AnimGraphNode_UseCachedPose_3;                     // 0x2180(0x0040)()
-	struct FAnimNode_Slot                         AnimGraphNode_Slot_1;                              // 0x21C0(0x0060)()
-	struct FAnimNode_UseCachedPose                AnimGraphNode_UseCachedPose_2;                     // 0x2220(0x0040)()
-	struct FAnimNode_TwoWayBlend                  AnimGraphNode_TwoWayBlend_2;                       // 0x2260(0x00D8)()
-	struct FAnimNode_Slot                         AnimGraphNode_Slot;                                // 0x2338(0x0060)()
-	struct FAnimNode_Inertialization              AnimGraphNode_Inertialization_1;                   // 0x2398(0x0080)()
-	struct FAnimNode_ModifyBone                   AnimGraphNode_ModifyBone_1;                        // 0x2418(0x0138)()
-	struct FAnimNode_UseCachedPose                AnimGraphNode_UseCachedPose_1;                     // 0x2550(0x0040)()
-	struct FAnimNode_LayeredBoneBlend             AnimGraphNode_LayeredBoneBlend_3;                  // 0x2590(0x00E8)()
-	struct FAnimNode_LayeredBoneBlend             AnimGraphNode_LayeredBoneBlend_2;                  // 0x2678(0x00E8)()
-	struct FAnimNode_SequencePlayer               AnimGraphNode_SequencePlayer_4;                    // 0x2760(0x00D0)()
-	struct FAnimNode_SequencePlayer               AnimGraphNode_SequencePlayer_3;                    // 0x2830(0x00D0)()
-	struct FAnimNode_UseCachedPose                AnimGraphNode_UseCachedPose;                       // 0x2900(0x0040)()
-	struct FAnimNode_ApplyAdditive                AnimGraphNode_ApplyAdditive_2;                     // 0x2940(0x00E8)()
-	struct FAnimNode_SequencePlayer               AnimGraphNode_SequencePlayer_2;                    // 0x2A28(0x00D0)()
-	struct FAnimNode_ModifyBone                   AnimGraphNode_ModifyBone;                          // 0x2AF8(0x0138)()
-	struct FAnimNode_Inertialization              AnimGraphNode_Inertialization;                     // 0x2C30(0x0080)()
-	struct FAnimNode_LayeredBoneBlend             AnimGraphNode_LayeredBoneBlend_1;                  // 0x2CB0(0x00E8)()
-	struct FAnimNode_SequencePlayer               AnimGraphNode_SequencePlayer_1;                    // 0x2D98(0x00D0)()
-	struct FAnimNode_ApplyAdditive                AnimGraphNode_ApplyAdditive_1;                     // 0x2E68(0x00E8)()
-	struct FAnimNode_TwoWayBlend                  AnimGraphNode_TwoWayBlend_1;                       // 0x2F50(0x00D8)()
-	struct FAnimNode_LayeredBoneBlend             AnimGraphNode_LayeredBoneBlend;                    // 0x3028(0x00E8)()
-	struct FAnimNode_SequencePlayer               AnimGraphNode_SequencePlayer;                      // 0x3110(0x00D0)()
-	struct FAnimNode_ApplyAdditive                AnimGraphNode_ApplyAdditive;                       // 0x31E0(0x00E8)()
-	struct FAnimNode_TwoWayBlend                  AnimGraphNode_TwoWayBlend;                         // 0x32C8(0x00D8)()
-	struct FAnimNode_ControlRig                   AnimGraphNode_ControlRig;                          // 0x33A0(0x0380)()
-	struct FAnimNode_SaveCachedPose               AnimGraphNode_SaveCachedPose;                      // 0x3720(0x0168)()
-	struct FSBZWallReactionData                   __CustomProperty_WallReactionData_813E02344D30983C0017D8A775E90102; // 0x3888(0x0040)(NoDestructor)
-	struct FSBZTankingData                        __CustomProperty_TankingData_813E02344D30983C0017D8A775E90102; // 0x38C8(0x0024)(NoDestructor)
+	struct FAnimNode_ModifyBone                   AnimGraphNode_ModifyBone_5;                        // 0x1CC0(0x0138)()
+	struct FAnimNode_ModifyBone                   AnimGraphNode_ModifyBone_4;                        // 0x1DF8(0x0138)()
+	struct FAnimNode_SaveCachedPose               AnimGraphNode_SaveCachedPose_1;                    // 0x1F30(0x0168)()
+	struct FAnimNode_UseCachedPose                AnimGraphNode_UseCachedPose_3;                     // 0x2098(0x0040)()
+	struct FAnimNode_Slot                         AnimGraphNode_Slot_1;                              // 0x20D8(0x0060)()
+	struct FAnimNode_UseCachedPose                AnimGraphNode_UseCachedPose_2;                     // 0x2138(0x0040)()
+	struct FAnimNode_TwoWayBlend                  AnimGraphNode_TwoWayBlend_2;                       // 0x2178(0x00D8)()
+	struct FAnimNode_Slot                         AnimGraphNode_Slot;                                // 0x2250(0x0060)()
+	struct FAnimNode_Inertialization              AnimGraphNode_Inertialization_1;                   // 0x22B0(0x0080)()
+	struct FAnimNode_ModifyBone                   AnimGraphNode_ModifyBone_3;                        // 0x2330(0x0138)()
+	struct FAnimNode_ModifyBone                   AnimGraphNode_ModifyBone_2;                        // 0x2468(0x0138)()
+	struct FAnimNode_LayeredBoneBlend             AnimGraphNode_LayeredBoneBlend_4;                  // 0x25A0(0x00E8)()
+	struct FAnimNode_LayeredBoneBlend             AnimGraphNode_LayeredBoneBlend_3;                  // 0x2688(0x00E8)()
+	struct FAnimNode_SequencePlayer               AnimGraphNode_SequencePlayer_4;                    // 0x2770(0x00D0)()
+	struct FAnimNode_SequencePlayer               AnimGraphNode_SequencePlayer_3;                    // 0x2840(0x00D0)()
+	struct FAnimNode_ModifyBone                   AnimGraphNode_ModifyBone_1;                        // 0x2910(0x0138)()
+	struct FAnimNode_ApplyAdditive                AnimGraphNode_ApplyAdditive_2;                     // 0x2A48(0x00E8)()
+	struct FAnimNode_SequencePlayer               AnimGraphNode_SequencePlayer_2;                    // 0x2B30(0x00D0)()
+	struct FAnimNode_ModifyBone                   AnimGraphNode_ModifyBone;                          // 0x2C00(0x0138)()
+	struct FAnimNode_Inertialization              AnimGraphNode_Inertialization;                     // 0x2D38(0x0080)()
+	struct FAnimNode_LayeredBoneBlend             AnimGraphNode_LayeredBoneBlend_2;                  // 0x2DB8(0x00E8)()
+	struct FAnimNode_SequencePlayer               AnimGraphNode_SequencePlayer_1;                    // 0x2EA0(0x00D0)()
+	struct FAnimNode_ApplyAdditive                AnimGraphNode_ApplyAdditive_1;                     // 0x2F70(0x00E8)()
+	struct FAnimNode_TwoWayBlend                  AnimGraphNode_TwoWayBlend_1;                       // 0x3058(0x00D8)()
+	struct FAnimNode_LayeredBoneBlend             AnimGraphNode_LayeredBoneBlend_1;                  // 0x3130(0x00E8)()
+	struct FAnimNode_SequencePlayer               AnimGraphNode_SequencePlayer;                      // 0x3218(0x00D0)()
+	struct FAnimNode_ApplyAdditive                AnimGraphNode_ApplyAdditive;                       // 0x32E8(0x00E8)()
+	struct FAnimNode_TwoWayBlend                  AnimGraphNode_TwoWayBlend;                         // 0x33D0(0x00D8)()
+	struct FAnimNode_ControlRig                   AnimGraphNode_ControlRig;                          // 0x34A8(0x0380)()
+	struct FAnimNode_SaveCachedPose               AnimGraphNode_SaveCachedPose;                      // 0x3828(0x0168)()
+	struct FAnimNode_UseCachedPose                AnimGraphNode_UseCachedPose_1;                     // 0x3990(0x0040)()
+	struct FAnimNode_UseCachedPose                AnimGraphNode_UseCachedPose;                       // 0x39D0(0x0040)()
+	struct FAnimNode_LayeredBoneBlend             AnimGraphNode_LayeredBoneBlend;                    // 0x3A10(0x00E8)()
+	struct FSBZWallReactionData                   __CustomProperty_WallReactionData_813E02344D30983C0017D8A775E90102; // 0x3AF8(0x0040)(NoDestructor)
+	struct FSBZTankingData                        __CustomProperty_TankingData_813E02344D30983C0017D8A775E90102; // 0x3B38(0x0024)(NoDestructor)
+	uint8                                         Pad_3B5C[0x4];                                     // 0x3B5C(0x0004)(Fixing Size After Last Property [ Dumper-7 ])
+	class USkeletalMeshComponent*                 CameraComponent;                                   // 0x3B60(0x0008)(Edit, BlueprintVisible, ZeroConstructor, DisableEditOnInstance, InstancedReference, IsPlainOldData, NoDestructor, HasGetValueTypeHash)
+	struct FRotator                               InverseCameraPitch;                                // 0x3B68(0x000C)(Edit, BlueprintVisible, ZeroConstructor, DisableEditOnInstance, IsPlainOldData, NoDestructor)
 
 public:
 	void ExecuteUbergraph_ABP_FPPlayerBase(int32 EntryPoint);
+	void BlueprintInitializeAnimation();
+	void BlueprintUpdateAnimation(float DeltaTimeX);
 	void AnimGraph(struct FPoseLink* AnimGraph_0);
 
 public:
@@ -109,5 +116,4 @@ public:
 	}
 };
 
-}
-
+SDK_NAMESPACE_END

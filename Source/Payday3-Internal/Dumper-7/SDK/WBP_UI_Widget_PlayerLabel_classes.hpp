@@ -10,24 +10,15 @@
 
 #include "Basic.hpp"
 
-#include "Engine_structs.hpp"
 #include "Starbreeze_classes.hpp"
 
 
-namespace SDK
-{
+SDK_NAMESPACE_START
 
 // WidgetBlueprintGeneratedClass WBP_UI_Widget_PlayerLabel.WBP_UI_Widget_PlayerLabel_C
-// 0x0008 (0x02D8 - 0x02D0)
+// 0x0000 (0x02E0 - 0x02E0)
 class UWBP_UI_Widget_PlayerLabel_C : public USBZPlayerLabelMarkerWidget
 {
-public:
-	struct FPointerToUberGraphFrame               UberGraphFrame;                                    // 0x02D0(0x0008)(ZeroConstructor, Transient, DuplicateTransient)
-
-public:
-	void ExecuteUbergraph_WBP_UI_Widget_PlayerLabel(int32 EntryPoint);
-	void PreConstruct(bool IsDesignTime);
-
 public:
 	static class UClass* StaticClass()
 	{
@@ -43,5 +34,4 @@ public:
 	}
 };
 
-}
-
+SDK_NAMESPACE_END

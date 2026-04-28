@@ -13,8 +13,7 @@
 #include "GameplayCameras_classes.hpp"
 
 
-namespace SDK
-{
+SDK_NAMESPACE_START
 
 // BlueprintGeneratedClass CS_FireWeapon_AssaultRifle_VF7S.CS_FireWeapon_AssaultRifle_VF7S_C
 // 0x0000 (0x01B0 - 0x01B0)
@@ -35,5 +34,4 @@ public:
 	}
 };
 
-}
-
+SDK_NAMESPACE_END

@@ -13,8 +13,7 @@
 #include "Starbreeze_classes.hpp"
 
 
-namespace SDK
-{
+SDK_NAMESPACE_START
 
 // BlueprintGeneratedClass GA_PlaceConsumable.GA_PlaceConsumable_C
 // 0x0000 (0x0540 - 0x0540)
@@ -35,5 +34,4 @@ public:
 	}
 };
 
-}
-
+SDK_NAMESPACE_END

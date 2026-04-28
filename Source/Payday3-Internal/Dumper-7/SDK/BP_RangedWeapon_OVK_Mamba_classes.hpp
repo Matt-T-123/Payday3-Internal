@@ -13,11 +13,10 @@
 #include "Starbreeze_classes.hpp"
 
 
-namespace SDK
-{
+SDK_NAMESPACE_START
 
 // BlueprintGeneratedClass BP_RangedWeapon_OVK_Mamba.BP_RangedWeapon_OVK_Mamba_C
-// 0x0000 (0x0750 - 0x0750)
+// 0x0000 (0x0770 - 0x0770)
 class ABP_RangedWeapon_OVK_Mamba_C : public ASBZRangedProjectileWeapon
 {
 public:
@@ -35,5 +34,4 @@ public:
 	}
 };
 
-}
-
+SDK_NAMESPACE_END

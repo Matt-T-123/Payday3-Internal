@@ -14,8 +14,7 @@
 #include "ABP_FPPlayerBase_parameters.hpp"
 
 
-namespace SDK
-{
+SDK_NAMESPACE_START
 
 // Function ABP_FPPlayerBase.ABP_FPPlayerBase_C.ExecuteUbergraph_ABP_FPPlayerBase
 // (Final, UbergraphFunction)
@@ -32,6 +31,40 @@ void UABP_FPPlayerBase_C::ExecuteUbergraph_ABP_FPPlayerBase(int32 EntryPoint)
 	Params::ABP_FPPlayerBase_C_ExecuteUbergraph_ABP_FPPlayerBase Parms{};
 
 	Parms.EntryPoint = EntryPoint;
+
+	UObject::ProcessEvent(Func, &Parms);
+}
+
+
+// Function ABP_FPPlayerBase.ABP_FPPlayerBase_C.BlueprintInitializeAnimation
+// (Event, Public, BlueprintEvent)
+
+void UABP_FPPlayerBase_C::BlueprintInitializeAnimation()
+{
+	static class UFunction* Func = nullptr;
+
+	if (Func == nullptr)
+		Func = Class->GetFunction("ABP_FPPlayerBase_C", "BlueprintInitializeAnimation");
+
+	UObject::ProcessEvent(Func, nullptr);
+}
+
+
+// Function ABP_FPPlayerBase.ABP_FPPlayerBase_C.BlueprintUpdateAnimation
+// (Event, Public, BlueprintEvent)
+// Parameters:
+// float                                   DeltaTimeX                                             (BlueprintVisible, BlueprintReadOnly, Parm, ZeroConstructor, IsPlainOldData, NoDestructor, HasGetValueTypeHash)
+
+void UABP_FPPlayerBase_C::BlueprintUpdateAnimation(float DeltaTimeX)
+{
+	static class UFunction* Func = nullptr;
+
+	if (Func == nullptr)
+		Func = Class->GetFunction("ABP_FPPlayerBase_C", "BlueprintUpdateAnimation");
+
+	Params::ABP_FPPlayerBase_C_BlueprintUpdateAnimation Parms{};
+
+	Parms.DeltaTimeX = DeltaTimeX;
 
 	UObject::ProcessEvent(Func, &Parms);
 }
@@ -57,5 +90,5 @@ void UABP_FPPlayerBase_C::AnimGraph(struct FPoseLink* AnimGraph_0)
 		*AnimGraph_0 = std::move(Parms.AnimGraph_0);
 }
 
-}
 
+SDK_NAMESPACE_END

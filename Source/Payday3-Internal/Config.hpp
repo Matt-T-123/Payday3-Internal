@@ -1,12 +1,12 @@
 #pragma once
 
-#define CURRENT_VERSION "v1.2.13b"
+#define CURRENT_VERSION "v1.2.14b"
 
 #define UNLOAD_KEY VK_END
 #define UNLOAD_KEY_ALT VK_DELETE
 #define CONSOLE_KEY VK_HOME
 
-#define TARGET_VERSION "936214"
+#define TARGET_VERSION "941010"
 
 #define NOMINMAX
 

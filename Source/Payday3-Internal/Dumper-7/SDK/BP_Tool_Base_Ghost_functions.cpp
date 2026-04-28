@@ -14,8 +14,7 @@
 #include "BP_Tool_Base_Ghost_parameters.hpp"
 
 
-namespace SDK
-{
+SDK_NAMESPACE_START
 
 // Function BP_Tool_Base_Ghost.BP_Tool_Base_Ghost_C.ExecuteUbergraph_BP_Tool_Base_Ghost
 // (Final, UbergraphFunction)
@@ -56,5 +55,5 @@ void ABP_Tool_Base_Ghost_C::OnGhostToolStateChanged(ESBZPlacementState NewPlacem
 	UObject::ProcessEvent(Func, &Parms);
 }
 
-}
 
+SDK_NAMESPACE_END

@@ -13,8 +13,7 @@
 #include "Starbreeze_classes.hpp"
 
 
-namespace SDK
-{
+SDK_NAMESPACE_START
 
 // BlueprintGeneratedClass GA_Hacker_SecuredLoop.GA_Hacker_SecuredLoop_C
 // 0x0000 (0x04F8 - 0x04F8)
@@ -35,5 +34,4 @@ public:
 	}
 };
 
-}
-
+SDK_NAMESPACE_END

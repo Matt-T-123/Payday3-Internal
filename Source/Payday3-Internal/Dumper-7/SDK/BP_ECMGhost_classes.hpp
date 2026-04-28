@@ -13,8 +13,7 @@
 #include "BP_Tool_Base_Ghost_classes.hpp"
 
 
-namespace SDK
-{
+SDK_NAMESPACE_START
 
 // BlueprintGeneratedClass BP_ECMGhost.BP_ECMGhost_C
 // 0x0000 (0x02E0 - 0x02E0)
@@ -35,5 +34,4 @@ public:
 	}
 };
 
-}
-
+SDK_NAMESPACE_END

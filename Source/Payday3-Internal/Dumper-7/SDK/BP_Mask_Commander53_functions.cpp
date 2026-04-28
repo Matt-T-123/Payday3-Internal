@@ -14,8 +14,7 @@
 #include "BP_Mask_Commander53_parameters.hpp"
 
 
-namespace SDK
-{
+SDK_NAMESPACE_START
 
 // Function BP_Mask_Commander53.BP_Mask_Commander53_C.UserConstructionScript
 // (Event, Public, BlueprintCallable, BlueprintEvent)
@@ -30,5 +29,5 @@ void ABP_Mask_Commander53_C::UserConstructionScript()
 	UObject::ProcessEvent(Func, nullptr);
 }
 
-}
 
+SDK_NAMESPACE_END

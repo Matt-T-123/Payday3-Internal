@@ -13,8 +13,7 @@
 #include "Starbreeze_classes.hpp"
 
 
-namespace SDK
-{
+SDK_NAMESPACE_START
 
 // BlueprintGeneratedClass BP_HeightTransitionCameraModifier.BP_HeightTransitionCameraModifier_C
 // 0x0000 (0x00F0 - 0x00F0)
@@ -35,5 +34,4 @@ public:
 	}
 };
 
-}
-
+SDK_NAMESPACE_END

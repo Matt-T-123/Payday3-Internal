@@ -14,8 +14,7 @@
 #include "CH_PlayerBase_parameters.hpp"
 
 
-namespace SDK
-{
+SDK_NAMESPACE_START
 
 // Function CH_PlayerBase.CH_PlayerBase_C.ExecuteUbergraph_CH_PlayerBase
 // (Final, UbergraphFunction)
@@ -151,5 +150,5 @@ void ACH_PlayerBase_C::SetMaskAnimation(float InDuration, ESBZMaskType& InMaskTy
 	InMorphTarget = Parms.InMorphTarget;
 }
 
-}
 
+SDK_NAMESPACE_END

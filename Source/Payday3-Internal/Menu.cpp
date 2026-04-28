@@ -570,6 +570,14 @@ void CheatConfig::Visuals_t::Draw(){
             {"Outline", "O", espConfig.m_stSpecialEnemies.m_bOutline}
         }));
 
+        MultiSelect("Civilians", ({
+            {"Box", "B", espConfig.m_stCivilians.m_bBox},
+            {"Flags", "F", espConfig.m_stCivilians.m_bFlags},
+            {"Skeleton", "S", espConfig.m_stCivilians.m_bSkeleton},
+            {"Outline", "O", espConfig.m_stCivilians.m_bOutline},
+            {"Only When Special Enemy is Visible", "OnlyWhenSpecial", espConfig.m_stCivilians.m_bOnlyWhenSpecial}
+        }));
+
 #ifdef _DEBUG
         ImGui::Checkbox("Debug Draw Bone Indices", &espConfig.bDebugDrawBoneIndices);
         ImGui::Checkbox("Debug Draw Bone Names Instead of Indices", &espConfig.bDebugDrawBoneNames);
@@ -813,6 +821,7 @@ namespace Menu
         auto vec2Pos = ImVec2{ vec2ScreenSize.x / 2.f + 10.f, vec2ScreenSize.y / 2.f + 10.f };
         auto pDrawList = ImGui::GetBackgroundDrawList();
 
+        #ifdef _DEBUG
         if(Cheat::g_bIsDesynced){
             pDrawList->AddText(ImVec2{ vec2Pos.x + 1.f, vec2Pos.y + 1.f }, IM_COL32(0, 0, 0, 255), "DESYNC");
             pDrawList->AddText(vec2Pos, IM_COL32(220, 0, 0, 255), "DESYNC");
@@ -824,5 +833,6 @@ namespace Menu
             pDrawList->AddText(vec2Pos, IM_COL32(11, 220, 0, 255), "Target");
             vec2Pos.y += 16.f;
         }
+        #endif
     }
 }

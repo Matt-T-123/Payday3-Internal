@@ -13,8 +13,7 @@
 #include "Starbreeze_classes.hpp"
 
 
-namespace SDK
-{
+SDK_NAMESPACE_START
 
 // BlueprintGeneratedClass BP_FireWeaponFeedback_Shotgun_M7P.BP_FireWeaponFeedback_Shotgun_M7P_C
 // 0x0000 (0x0308 - 0x0308)
@@ -35,5 +34,4 @@ public:
 	}
 };
 
-}
-
+SDK_NAMESPACE_END

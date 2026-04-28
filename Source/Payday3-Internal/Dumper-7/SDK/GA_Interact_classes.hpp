@@ -14,8 +14,7 @@
 #include "Starbreeze_classes.hpp"
 
 
-namespace SDK
-{
+SDK_NAMESPACE_START
 
 // BlueprintGeneratedClass GA_Interact.GA_Interact_C
 // 0x0008 (0x04E8 - 0x04E0)
@@ -44,5 +43,4 @@ public:
 	}
 };
 
-}
-
+SDK_NAMESPACE_END

@@ -14,8 +14,7 @@
 #include "Starbreeze_classes.hpp"
 
 
-namespace SDK
-{
+SDK_NAMESPACE_START
 
 // BlueprintGeneratedClass BP_CosmeticCigaret.BP_CosmeticCigaret_C
 // 0x0018 (0x02E0 - 0x02C8)
@@ -45,5 +44,4 @@ public:
 	}
 };
 
-}
-
+SDK_NAMESPACE_END

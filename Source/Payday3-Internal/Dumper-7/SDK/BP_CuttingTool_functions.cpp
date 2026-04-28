@@ -14,8 +14,7 @@
 #include "BP_CuttingTool_parameters.hpp"
 
 
-namespace SDK
-{
+SDK_NAMESPACE_START
 
 // Function BP_CuttingTool.BP_CuttingTool_C.ExecuteUbergraph_BP_CuttingTool
 // (Final, UbergraphFunction, HasDefaults)
@@ -92,5 +91,5 @@ void ABP_CuttingTool_C::OnCanceled()
 	UObject::ProcessEvent(Func, nullptr);
 }
 
-}
 
+SDK_NAMESPACE_END

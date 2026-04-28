@@ -14,8 +14,7 @@
 #include "WBP_PocketDrillWidget_parameters.hpp"
 
 
-namespace SDK
-{
+SDK_NAMESPACE_START
 
 // Function WBP_PocketDrillWidget.WBP_PocketDrillWidget_C.ExecuteUbergraph_WBP_PocketDrillWidget
 // (Final, UbergraphFunction, HasDefaults)
@@ -56,5 +55,5 @@ void UWBP_PocketDrillWidget_C::OnUpdateBreachState(ESBZBreachingEquipmentState N
 	UObject::ProcessEvent(Func, &Parms);
 }
 
-}
 
+SDK_NAMESPACE_END

@@ -24,11 +24,11 @@ namespace ESP
     };
 
     struct CivilianESP{
-        bool m_bBox = true;
-        bool m_bFlags = true;
+        bool m_bBox = false;
+        bool m_bFlags = false;
         bool m_bSkeleton = false;
-        bool m_bOutline = true;
-        bool m_bOnlyWhenSpecial = true;
+        bool m_bOutline = false;
+        bool m_bOnlyWhenSpecial = false;
     };
 
     struct Config {

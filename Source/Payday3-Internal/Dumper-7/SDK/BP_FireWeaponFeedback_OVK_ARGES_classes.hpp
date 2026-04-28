@@ -13,8 +13,7 @@
 #include "Starbreeze_classes.hpp"
 
 
-namespace SDK
-{
+SDK_NAMESPACE_START
 
 // BlueprintGeneratedClass BP_FireWeaponFeedback_OVK_ARGES.BP_FireWeaponFeedback_OVK_ARGES_C
 // 0x0000 (0x0308 - 0x0308)
@@ -35,5 +34,4 @@ public:
 	}
 };
 
-}
-
+SDK_NAMESPACE_END

@@ -10,23 +10,22 @@
 
 #include "Basic.hpp"
 
+#include "Engine_structs.hpp"
 #include "Starbreeze_structs.hpp"
 #include "Starbreeze_classes.hpp"
-#include "Engine_structs.hpp"
 
 
-namespace SDK
-{
+SDK_NAMESPACE_START
 
 // BlueprintGeneratedClass BP_PhoneToolClickable.BP_PhoneToolClickable_C
-// 0x0040 (0x05D0 - 0x0590)
+// 0x0040 (0x05F0 - 0x05B0)
 class ABP_PhoneToolClickable_C : public ASBZPhoneTool
 {
 public:
-	struct FPointerToUberGraphFrame               UberGraphFrame;                                    // 0x0590(0x0008)(ZeroConstructor, Transient, DuplicateTransient)
-	int32                                         ControlID;                                         // 0x0598(0x0004)(Edit, BlueprintVisible, ZeroConstructor, DisableEditOnInstance, IsPlainOldData, NoDestructor, HasGetValueTypeHash)
-	uint8                                         Pad_59C[0x4];                                      // 0x059C(0x0004)(Fixing Size After Last Property [ Dumper-7 ])
-	struct FSBZControlsReference                  In_Controls_Reference_Idle;                        // 0x05A0(0x0028)(Edit, BlueprintVisible, DisableEditOnInstance)
+	struct FPointerToUberGraphFrame               UberGraphFrame;                                    // 0x05B0(0x0008)(ZeroConstructor, Transient, DuplicateTransient)
+	int32                                         ControlID;                                         // 0x05B8(0x0004)(Edit, BlueprintVisible, ZeroConstructor, DisableEditOnInstance, IsPlainOldData, NoDestructor, HasGetValueTypeHash)
+	uint8                                         Pad_5BC[0x4];                                      // 0x05BC(0x0004)(Fixing Size After Last Property [ Dumper-7 ])
+	struct FSBZControlsReference                  In_Controls_Reference_Idle;                        // 0x05C0(0x0028)(Edit, BlueprintVisible, DisableEditOnInstance)
 
 public:
 	void ExecuteUbergraph_BP_PhoneToolClickable(int32 EntryPoint);
@@ -49,5 +48,4 @@ public:
 	}
 };
 
-}
-
+SDK_NAMESPACE_END

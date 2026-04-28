@@ -15,8 +15,7 @@
 #include "Starbreeze_classes.hpp"
 
 
-namespace SDK
-{
+SDK_NAMESPACE_START
 
 // AnimBlueprintGeneratedClass ABP_TPPlayerLinkedBase.ABP_TPPlayerLinkedBase_C
 // 0x0BA0 (0x0F30 - 0x0390)
@@ -68,5 +67,4 @@ public:
 	}
 };
 
-}
-
+SDK_NAMESPACE_END

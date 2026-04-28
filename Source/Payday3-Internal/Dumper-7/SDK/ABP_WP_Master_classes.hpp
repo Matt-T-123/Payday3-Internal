@@ -11,13 +11,12 @@
 #include "Basic.hpp"
 
 #include "Engine_structs.hpp"
-#include "AnimGraphRuntime_structs.hpp"
 #include "Starbreeze_structs.hpp"
 #include "Starbreeze_classes.hpp"
+#include "AnimGraphRuntime_structs.hpp"
 
 
-namespace SDK
-{
+SDK_NAMESPACE_START
 
 // AnimBlueprintGeneratedClass ABP_WP_Master.ABP_WP_Master_C
 // 0x1220 (0x15A0 - 0x0380)
@@ -62,5 +61,4 @@ public:
 	}
 };
 
-}
-
+SDK_NAMESPACE_END

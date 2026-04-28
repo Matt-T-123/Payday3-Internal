@@ -14,8 +14,7 @@
 #include "GA_Interact_parameters.hpp"
 
 
-namespace SDK
-{
+SDK_NAMESPACE_START
 
 // Function GA_Interact.GA_Interact_C.ExecuteUbergraph_GA_Interact
 // (Final, UbergraphFunction)
@@ -70,5 +69,5 @@ void UGA_Interact_C::K2_ActivateAbility()
 	UObject::ProcessEvent(Func, nullptr);
 }
 
-}
 
+SDK_NAMESPACE_END

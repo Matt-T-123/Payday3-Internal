@@ -14,8 +14,7 @@
 #include "WBP_UI_Widget_SpeedLockpicking_QoL_parameters.hpp"
 
 
-namespace SDK
-{
+SDK_NAMESPACE_START
 
 // Function WBP_UI_Widget_SpeedLockpicking_QoL.WBP_UI_Widget_SpeedLockpicking_QoL_C.ExecuteUbergraph_WBP_UI_Widget_SpeedLockpicking_QoL
 // (Final, UbergraphFunction, HasDefaults)
@@ -501,5 +500,5 @@ bool UWBP_UI_Widget_SpeedLockpicking_QoL_C::IsChunkInRange(float PinPosition_0, 
 	return Parms.ReturnValue;
 }
 
-}
 
+SDK_NAMESPACE_END

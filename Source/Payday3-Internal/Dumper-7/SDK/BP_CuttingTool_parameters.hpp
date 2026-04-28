@@ -13,8 +13,8 @@
 #include "AkAudio_structs.hpp"
 
 
-namespace SDK::Params
-{
+SDK_NAMESPACE_START
+SDK_PARAM_NAMESPACE_START
 
 // Function BP_CuttingTool.BP_CuttingTool_C.ExecuteUbergraph_BP_CuttingTool
 // 0x00C8 (0x00C8 - 0x0000)
@@ -49,5 +49,5 @@ public:
 	bool                                          CallFunc_IsDedicatedServer_ReturnValue_3;          // 0x00C6(0x0001)(ZeroConstructor, IsPlainOldData, NoDestructor)
 };
 
-}
-
+SDK_PARAM_NAMESPACE_END
+SDK_NAMESPACE_END

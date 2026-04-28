@@ -10,9 +10,9 @@
 
 #include "Basic.hpp"
 
-#include "ESBZSkillEquipResult_structs.hpp"
 #include "Starbreeze_structs.hpp"
 #include "Engine_structs.hpp"
+#include "ESBZSkillEquipResult_structs.hpp"
 
 
 SDK_NAMESPACE_START

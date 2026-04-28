@@ -14,8 +14,7 @@
 #include "BP_CosmeticHardcase_parameters.hpp"
 
 
-namespace SDK
-{
+SDK_NAMESPACE_START
 
 // Function BP_CosmeticHardcase.BP_CosmeticHardcase_C.ExecuteUbergraph_BP_CosmeticHardcase
 // (Final, UbergraphFunction)
@@ -142,5 +141,5 @@ void ABP_CosmeticHardcase_C::PlayAnimation(class UAnimSequence* Animation)
 	UObject::ProcessEvent(Func, &Parms);
 }
 
-}
 
+SDK_NAMESPACE_END

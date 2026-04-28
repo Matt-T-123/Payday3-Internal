@@ -14,8 +14,7 @@
 #include "GA_Run_parameters.hpp"
 
 
-namespace SDK
-{
+SDK_NAMESPACE_START
 
 // Function GA_Run.GA_Run_C.ExecuteUbergraph_GA_Run
 // (Final, UbergraphFunction)
@@ -70,5 +69,5 @@ void UGA_Run_C::K2_ActivateAbility()
 	UObject::ProcessEvent(Func, nullptr);
 }
 
-}
 
+SDK_NAMESPACE_END

@@ -15,8 +15,7 @@
 #include "Starbreeze_classes.hpp"
 
 
-namespace SDK
-{
+SDK_NAMESPACE_START
 
 // WidgetBlueprintGeneratedClass WBP_PocketDrillWidget.WBP_PocketDrillWidget_C
 // 0x0020 (0x0310 - 0x02F0)
@@ -47,5 +46,4 @@ public:
 	}
 };
 
-}
-
+SDK_NAMESPACE_END

@@ -13,11 +13,10 @@
 #include "Starbreeze_classes.hpp"
 
 
-namespace SDK
-{
+SDK_NAMESPACE_START
 
 // BlueprintGeneratedClass GA_PlayerEmote.GA_PlayerEmote_C
-// 0x0000 (0x0508 - 0x0508)
+// 0x0000 (0x0550 - 0x0550)
 class UGA_PlayerEmote_C : public USBZEmoteAbility
 {
 public:
@@ -35,5 +34,4 @@ public:
 	}
 };
 
-}
-
+SDK_NAMESPACE_END

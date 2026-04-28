@@ -13,11 +13,10 @@
 #include "Starbreeze_classes.hpp"
 
 
-namespace SDK
-{
+SDK_NAMESPACE_START
 
 // BlueprintGeneratedClass BP_Equippable_HandCuffs.BP_Equippable_HandCuffs_C
-// 0x0000 (0x0450 - 0x0450)
+// 0x0000 (0x0470 - 0x0470)
 class ABP_Equippable_HandCuffs_C : public ASBZEquippable
 {
 public:
@@ -35,5 +34,4 @@ public:
 	}
 };
 
-}
-
+SDK_NAMESPACE_END

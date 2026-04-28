@@ -13,11 +13,25 @@
 #include "Starbreeze_classes.hpp"
 
 
-namespace SDK
-{
+SDK_NAMESPACE_START
 
 // BlueprintGeneratedClass GA_Traverse.GA_Traverse_C
 // 0x0000 (0x04E8 - 0x04E8)
+class UGA_Traverse_C : public USBZPlayerCharacterTraverseAbility
+{
+public:
+	static class UClass* StaticClass()
+	{
+		BP_STATIC_CLASS_IMPL("GA_Traverse_C")
+	}
+	static const class FName& StaticName()
+	{
+		STATIC_NAME_IMPL(L"GA_Traverse_C")
+	}
+	static class UGA_Traverse_C* GetDefaultObj()
+	{
+		return GetDefaultObjImpl<UGA_Traverse_C>();
+	}
+};
 
-}
-
+SDK_NAMESPACE_END

@@ -13,8 +13,8 @@
 #include "Starbreeze_structs.hpp"
 
 
-namespace SDK::Params
-{
+SDK_NAMESPACE_START
+SDK_PARAM_NAMESPACE_START
 
 // Function WBP_PocketDrillWidget.WBP_PocketDrillWidget_C.ExecuteUbergraph_WBP_PocketDrillWidget
 // 0x00F0 (0x00F0 - 0x0000)
@@ -47,5 +47,5 @@ public:
 	ESBZBreachingEquipmentState                   NewState;                                          // 0x0000(0x0001)(BlueprintVisible, BlueprintReadOnly, Parm, ZeroConstructor, IsPlainOldData, NoDestructor, HasGetValueTypeHash)
 };
 
-}
-
+SDK_PARAM_NAMESPACE_END
+SDK_NAMESPACE_END

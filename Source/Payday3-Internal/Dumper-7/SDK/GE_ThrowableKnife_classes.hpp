@@ -13,8 +13,7 @@
 #include "GameplayAbilities_classes.hpp"
 
 
-namespace SDK
-{
+SDK_NAMESPACE_START
 
 // BlueprintGeneratedClass GE_ThrowableKnife.GE_ThrowableKnife_C
 // 0x0000 (0x08C0 - 0x08C0)
@@ -35,5 +34,4 @@ public:
 	}
 };
 
-}
-
+SDK_NAMESPACE_END

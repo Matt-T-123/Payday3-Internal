@@ -14,8 +14,7 @@
 #include "Starbreeze_classes.hpp"
 
 
-namespace SDK
-{
+SDK_NAMESPACE_START
 
 // BlueprintGeneratedClass GA_PlayerCrouch.GA_PlayerCrouch_C
 // 0x0008 (0x0508 - 0x0500)
@@ -44,5 +43,4 @@ public:
 	}
 };
 
-}
-
+SDK_NAMESPACE_END

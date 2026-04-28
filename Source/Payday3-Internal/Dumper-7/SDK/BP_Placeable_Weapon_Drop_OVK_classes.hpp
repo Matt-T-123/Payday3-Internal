@@ -13,11 +13,10 @@
 #include "BP_Placeable_Weapon_Drop_classes.hpp"
 
 
-namespace SDK
-{
+SDK_NAMESPACE_START
 
 // BlueprintGeneratedClass BP_Placeable_Weapon_Drop_OVK.BP_Placeable_Weapon_Drop_OVK_C
-// 0x0000 (0x0540 - 0x0540)
+// 0x0000 (0x0580 - 0x0580)
 class ABP_Placeable_Weapon_Drop_OVK_C : public ABP_Placeable_Weapon_Drop_C
 {
 public:
@@ -35,5 +34,4 @@ public:
 	}
 };
 
-}
-
+SDK_NAMESPACE_END

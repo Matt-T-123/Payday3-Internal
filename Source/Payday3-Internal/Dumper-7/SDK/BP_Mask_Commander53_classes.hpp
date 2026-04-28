@@ -13,8 +13,7 @@
 #include "Starbreeze_classes.hpp"
 
 
-namespace SDK
-{
+SDK_NAMESPACE_START
 
 // BlueprintGeneratedClass BP_Mask_Commander53.BP_Mask_Commander53_C
 // 0x0008 (0x0350 - 0x0348)
@@ -41,5 +40,4 @@ public:
 	}
 };
 
-}
-
+SDK_NAMESPACE_END

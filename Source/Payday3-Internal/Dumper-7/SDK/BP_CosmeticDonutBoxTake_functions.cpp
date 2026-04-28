@@ -14,8 +14,7 @@
 #include "BP_CosmeticDonutBoxTake_parameters.hpp"
 
 
-namespace SDK
-{
+SDK_NAMESPACE_START
 
 // Function BP_CosmeticDonutBoxTake.BP_CosmeticDonutBoxTake_C.ExecuteUbergraph_BP_CosmeticDonutBoxTake
 // (Final, UbergraphFunction)
@@ -142,5 +141,5 @@ void ABP_CosmeticDonutBoxTake_C::PlayAnimation(class UAnimSequence* Animation)
 	UObject::ProcessEvent(Func, &Parms);
 }
 
-}
 
+SDK_NAMESPACE_END

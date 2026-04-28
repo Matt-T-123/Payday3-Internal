@@ -14,8 +14,7 @@
 #include "ALI_CharacterBase_parameters.hpp"
 
 
-namespace SDK
-{
+SDK_NAMESPACE_START
 
 // Function ALI_CharacterBase.ALI_CharacterBase_C.FullBodyAction
 // (HasOutParams, BlueprintCallable, BlueprintEvent)
@@ -40,5 +39,5 @@ void IALI_CharacterBase_C::FullBodyAction(const struct FPoseLink& InPose, struct
 		*FullBodyAction_0 = std::move(Parms.FullBodyAction_0);
 }
 
-}
 
+SDK_NAMESPACE_END

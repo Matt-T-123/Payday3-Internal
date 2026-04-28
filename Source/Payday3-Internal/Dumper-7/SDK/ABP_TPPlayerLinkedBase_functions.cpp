@@ -14,8 +14,7 @@
 #include "ABP_TPPlayerLinkedBase_parameters.hpp"
 
 
-namespace SDK
-{
+SDK_NAMESPACE_START
 
 // Function ABP_TPPlayerLinkedBase.ABP_TPPlayerLinkedBase_C.ExecuteUbergraph_ABP_TPPlayerLinkedBase
 // (Final, UbergraphFunction)
@@ -81,5 +80,5 @@ void UABP_TPPlayerLinkedBase_C::FullBodyAction(const struct FPoseLink& InPose, s
 		*FullBodyAction_0 = std::move(Parms.FullBodyAction_0);
 }
 
-}
 
+SDK_NAMESPACE_END

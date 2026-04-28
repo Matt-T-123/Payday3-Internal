@@ -15,8 +15,7 @@
 #include "Starbreeze_classes.hpp"
 
 
-namespace SDK
-{
+SDK_NAMESPACE_START
 
 // BlueprintGeneratedClass BP_Tool_Base_Ghost.BP_Tool_Base_Ghost_C
 // 0x0010 (0x02E0 - 0x02D0)
@@ -45,5 +44,4 @@ public:
 	}
 };
 
-}
-
+SDK_NAMESPACE_END

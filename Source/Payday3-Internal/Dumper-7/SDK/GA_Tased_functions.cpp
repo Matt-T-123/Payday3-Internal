@@ -14,8 +14,7 @@
 #include "GA_Tased_parameters.hpp"
 
 
-namespace SDK
-{
+SDK_NAMESPACE_START
 
 // Function GA_Tased.GA_Tased_C.ExecuteUbergraph_GA_Tased
 // (Final, UbergraphFunction)
@@ -50,5 +49,5 @@ void UGA_Tased_C::K2_ActivateAbility()
 	UObject::ProcessEvent(Func, nullptr);
 }
 
-}
 
+SDK_NAMESPACE_END

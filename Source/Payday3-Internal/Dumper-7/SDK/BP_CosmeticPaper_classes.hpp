@@ -13,8 +13,7 @@
 #include "Starbreeze_classes.hpp"
 
 
-namespace SDK
-{
+SDK_NAMESPACE_START
 
 // BlueprintGeneratedClass BP_CosmeticPaper.BP_CosmeticPaper_C
 // 0x0010 (0x02D8 - 0x02C8)
@@ -39,5 +38,4 @@ public:
 	}
 };
 
-}
-
+SDK_NAMESPACE_END

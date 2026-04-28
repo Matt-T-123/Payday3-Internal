@@ -14,8 +14,7 @@
 #include "Starbreeze_structs.hpp"
 
 
-namespace SDK
-{
+SDK_NAMESPACE_START
 
 // ControlRigBlueprintGeneratedClass CR_FP_Player.CR_FP_Player_C
 // 0x0068 (0x06C8 - 0x0660)
@@ -41,5 +40,4 @@ public:
 	}
 };
 
-}
-
+SDK_NAMESPACE_END

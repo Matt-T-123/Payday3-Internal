@@ -15,8 +15,7 @@
 #include "Starbreeze_classes.hpp"
 
 
-namespace SDK
-{
+SDK_NAMESPACE_START
 
 // AnimBlueprintGeneratedClass ABP_HandCuffsAnimation.ABP_HandCuffsAnimation_C
 // 0x0180 (0x0450 - 0x02D0)
@@ -47,5 +46,4 @@ public:
 	}
 };
 
-}
-
+SDK_NAMESPACE_END

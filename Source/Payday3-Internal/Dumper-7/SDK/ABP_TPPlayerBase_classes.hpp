@@ -16,8 +16,7 @@
 #include "AnimGraphRuntime_structs.hpp"
 
 
-namespace SDK
-{
+SDK_NAMESPACE_START
 
 // AnimBlueprintGeneratedClass ABP_TPPlayerBase.ABP_TPPlayerBase_C
 // 0xBAB0 (0xC740 - 0x0C90)
@@ -284,5 +283,4 @@ public:
 	}
 };
 
-}
-
+SDK_NAMESPACE_END

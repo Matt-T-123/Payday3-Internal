@@ -13,8 +13,7 @@
 #include "Engine_classes.hpp"
 
 
-namespace SDK
-{
+SDK_NAMESPACE_START
 
 // BlueprintGeneratedClass BP_Placeable_DoctorBag_Destroyed.BP_Placeable_DoctorBag_Destroyed_C
 // 0x0018 (0x02D0 - 0x02B8)
@@ -40,5 +39,4 @@ public:
 	}
 };
 
-}
-
+SDK_NAMESPACE_END

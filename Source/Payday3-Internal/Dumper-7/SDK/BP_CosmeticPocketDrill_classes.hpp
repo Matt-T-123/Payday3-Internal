@@ -13,8 +13,7 @@
 #include "Starbreeze_classes.hpp"
 
 
-namespace SDK
-{
+SDK_NAMESPACE_START
 
 // BlueprintGeneratedClass BP_CosmeticPocketDrill.BP_CosmeticPocketDrill_C
 // 0x0038 (0x0300 - 0x02C8)
@@ -44,5 +43,4 @@ public:
 	}
 };
 
-}
-
+SDK_NAMESPACE_END

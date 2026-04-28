@@ -14,8 +14,7 @@
 #include "BP_CosmeticCigaret_parameters.hpp"
 
 
-namespace SDK
-{
+SDK_NAMESPACE_START
 
 // Function BP_CosmeticCigaret.BP_CosmeticCigaret_C.ExecuteUbergraph_BP_CosmeticCigaret
 // (Final, UbergraphFunction)
@@ -50,5 +49,5 @@ void ABP_CosmeticCigaret_C::ReceiveBeginPlay()
 	UObject::ProcessEvent(Func, nullptr);
 }
 
-}
 
+SDK_NAMESPACE_END

@@ -13,8 +13,7 @@
 #include "GameplayCameras_classes.hpp"
 
 
-namespace SDK
-{
+SDK_NAMESPACE_START
 
 // BlueprintGeneratedClass CS_SubduedDamage.CS_SubduedDamage_C
 // 0x0000 (0x01B0 - 0x01B0)
@@ -35,5 +34,4 @@ public:
 	}
 };
 
-}
-
+SDK_NAMESPACE_END

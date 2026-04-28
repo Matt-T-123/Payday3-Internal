@@ -13,8 +13,8 @@
 #include "AkAudio_structs.hpp"
 
 
-namespace SDK::Params
-{
+SDK_NAMESPACE_START
+SDK_PARAM_NAMESPACE_START
 
 // Function BP_Placeable_DoctorBag.BP_Placeable_DoctorBag_C.ExecuteUbergraph_BP_Placeable_DoctorBag
 // 0x0120 (0x0120 - 0x0000)
@@ -134,5 +134,5 @@ public:
 	class UStaticMeshComponent*                   K2Node_Select_Default;                             // 0x0018(0x0008)(ZeroConstructor, InstancedReference, IsPlainOldData, NoDestructor, HasGetValueTypeHash)
 };
 
-}
-
+SDK_PARAM_NAMESPACE_END
+SDK_NAMESPACE_END

@@ -13,8 +13,8 @@
 #include "AkAudio_structs.hpp"
 
 
-namespace SDK::Params
-{
+SDK_NAMESPACE_START
+SDK_PARAM_NAMESPACE_START
 
 // Function BP_ECMJammer.BP_ECMJammer_C.ExecuteUbergraph_BP_ECMJammer
 // 0x0088 (0x0088 - 0x0000)
@@ -36,5 +36,5 @@ public:
 	int32                                         CallFunc_PostAkEvent_ReturnValue_2;                // 0x0084(0x0004)(ZeroConstructor, IsPlainOldData, NoDestructor, HasGetValueTypeHash)
 };
 
-}
-
+SDK_PARAM_NAMESPACE_END
+SDK_NAMESPACE_END

@@ -13,8 +13,8 @@
 #include "Engine_structs.hpp"
 
 
-namespace SDK::Params
-{
+SDK_NAMESPACE_START
+SDK_PARAM_NAMESPACE_START
 
 // Function ABP_TPPlayerBase.ABP_TPPlayerBase_C.ExecuteUbergraph_ABP_TPPlayerBase
 // 0x0004 (0x0004 - 0x0000)
@@ -41,5 +41,5 @@ public:
 	struct FPoseLink                              FullBodyAction_0;                                  // 0x0010(0x0010)(Parm, OutParm, NoDestructor)
 };
 
-}
-
+SDK_PARAM_NAMESPACE_END
+SDK_NAMESPACE_END

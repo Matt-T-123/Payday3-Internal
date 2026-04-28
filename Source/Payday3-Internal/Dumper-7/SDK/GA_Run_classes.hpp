@@ -14,8 +14,7 @@
 #include "Starbreeze_classes.hpp"
 
 
-namespace SDK
-{
+SDK_NAMESPACE_START
 
 // BlueprintGeneratedClass GA_Run.GA_Run_C
 // 0x0008 (0x04E0 - 0x04D8)
@@ -44,5 +43,4 @@ public:
 	}
 };
 
-}
-
+SDK_NAMESPACE_END

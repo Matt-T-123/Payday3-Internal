@@ -15,8 +15,7 @@
 #include "Starbreeze_classes.hpp"
 
 
-namespace SDK
-{
+SDK_NAMESPACE_START
 
 // WidgetBlueprintGeneratedClass WBP_UI_Widget_SpeedLockpicking_QoL.WBP_UI_Widget_SpeedLockpicking_QoL_C
 // 0x0100 (0x03D0 - 0x02D0)
@@ -97,5 +96,4 @@ public:
 	}
 };
 
-}
-
+SDK_NAMESPACE_END

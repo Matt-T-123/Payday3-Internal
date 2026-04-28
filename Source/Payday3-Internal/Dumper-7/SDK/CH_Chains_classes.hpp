@@ -13,11 +13,10 @@
 #include "CH_PlayerBase_classes.hpp"
 
 
-namespace SDK
-{
+SDK_NAMESPACE_START
 
 // BlueprintGeneratedClass CH_Chains.CH_Chains_C
-// 0x0000 (0x2220 - 0x2220)
+// 0x0000 (0x22B0 - 0x22B0)
 class ACH_Chains_C : public ACH_PlayerBase_C
 {
 public:
@@ -35,5 +34,4 @@ public:
 	}
 };
 
-}
-
+SDK_NAMESPACE_END

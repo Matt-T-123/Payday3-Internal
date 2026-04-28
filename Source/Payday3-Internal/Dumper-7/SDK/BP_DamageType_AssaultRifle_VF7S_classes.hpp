@@ -13,8 +13,7 @@
 #include "Starbreeze_classes.hpp"
 
 
-namespace SDK
-{
+SDK_NAMESPACE_START
 
 // BlueprintGeneratedClass BP_DamageType_AssaultRifle_VF7S.BP_DamageType_AssaultRifle_VF7S_C
 // 0x0000 (0x0090 - 0x0090)
@@ -35,5 +34,4 @@ public:
 	}
 };
 
-}
-
+SDK_NAMESPACE_END

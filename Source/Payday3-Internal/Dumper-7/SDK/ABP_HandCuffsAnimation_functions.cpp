@@ -14,8 +14,7 @@
 #include "ABP_HandCuffsAnimation_parameters.hpp"
 
 
-namespace SDK
-{
+SDK_NAMESPACE_START
 
 // Function ABP_HandCuffsAnimation.ABP_HandCuffsAnimation_C.ExecuteUbergraph_ABP_HandCuffsAnimation
 // (Final, UbergraphFunction)
@@ -57,5 +56,5 @@ void UABP_HandCuffsAnimation_C::AnimGraph(struct FPoseLink* AnimGraph_0)
 		*AnimGraph_0 = std::move(Parms.AnimGraph_0);
 }
 
-}
 
+SDK_NAMESPACE_END

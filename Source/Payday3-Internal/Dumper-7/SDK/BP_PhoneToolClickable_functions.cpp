@@ -14,8 +14,7 @@
 #include "BP_PhoneToolClickable_parameters.hpp"
 
 
-namespace SDK
-{
+SDK_NAMESPACE_START
 
 // Function BP_PhoneToolClickable.BP_PhoneToolClickable_C.ExecuteUbergraph_BP_PhoneToolClickable
 // (Final, UbergraphFunction)
@@ -78,5 +77,5 @@ void ABP_PhoneToolClickable_C::OnReady()
 	UObject::ProcessEvent(Func, nullptr);
 }
 
-}
 
+SDK_NAMESPACE_END

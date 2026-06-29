@@ -44,6 +44,8 @@ namespace ESP
         bool bDebugSkeletonDrawBoneIndices = false;
         bool bDebugSkeletonDrawBoneNames = false;
         bool bDebugESP = false;
+
+        bool bDrawFovCircle = false;
     };
 
     inline Config& GetConfig() {

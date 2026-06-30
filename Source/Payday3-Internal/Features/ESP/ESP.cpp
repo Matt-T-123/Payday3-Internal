@@ -494,8 +494,8 @@ namespace ESP
         {
             auto vec4ScreenBox = optScreenBox.value();
             if (stSettings.m_bBox){
-                pDrawList->AddRect(ImVec2(vec4ScreenBox.x - 1, vec4ScreenBox.y - 1), ImVec2(vec4ScreenBox.z + 1, vec4ScreenBox.w + 1), IM_COL32(30, 30, 30, 55), 0.0f, 0, 2.0f);
-                pDrawList->AddRect(ImVec2(vec4ScreenBox.x, vec4ScreenBox.y), ImVec2(vec4ScreenBox.z, vec4ScreenBox.w), IM_COL32(255, 0, 0, 255), 0.0f, 0, 2.0f);
+                pDrawList->AddRect(ImVec2(vec4ScreenBox.x - 1, vec4ScreenBox.y - 1), ImVec2(vec4ScreenBox.z + 1, vec4ScreenBox.w + 1), IM_COL32(30, 30, 30, 55), 0.0f, 0, 1.0f);
+                pDrawList->AddRect(ImVec2(vec4ScreenBox.x, vec4ScreenBox.y), ImVec2(vec4ScreenBox.z, vec4ScreenBox.w), IM_COL32(255, 0, 0, 255), 0.0f, 0, 1.0f);
             }
                 
             if (stSettings.m_bName)
@@ -576,8 +576,8 @@ namespace ESP
         {
             auto vec4ScreenBox = optScreenBox.value();
             if (stSettings.m_bBox){
-                pDrawList->AddRect(ImVec2(vec4ScreenBox.x - 1, vec4ScreenBox.y - 1), ImVec2(vec4ScreenBox.z + 1, vec4ScreenBox.w + 1), IM_COL32(30, 30, 30, 55), 0.0f, 0, 2.0f);
-                pDrawList->AddRect(ImVec2(vec4ScreenBox.x, vec4ScreenBox.y), ImVec2(vec4ScreenBox.z, vec4ScreenBox.w), IM_COL32(255, 0, 0, 255), 0.0f, 0, 2.0f);
+                pDrawList->AddRect(ImVec2(vec4ScreenBox.x - 1, vec4ScreenBox.y - 1), ImVec2(vec4ScreenBox.z + 1, vec4ScreenBox.w + 1), IM_COL32(30, 30, 30, 55), 0.0f, 0, 1.0f);
+                pDrawList->AddRect(ImVec2(vec4ScreenBox.x, vec4ScreenBox.y), ImVec2(vec4ScreenBox.z, vec4ScreenBox.w), IM_COL32(255, 0, 0, 255), 0.0f, 0, 1.0f);
             }
 
             if (!stSettings.m_bFlags)

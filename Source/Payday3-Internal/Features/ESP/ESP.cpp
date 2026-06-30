@@ -638,6 +638,22 @@ namespace ESP
         return nullptr;
     }
 
+    void DrawFovCircle(SDK::UWorld* pGWorld, SDK::APlayerController* pPlayerController, ImDrawList* pDrawList){
+        const auto& stConfig = CheatConfig::Get().m_aimbot;
+        ImVec2 vec2ScreenSize = CheatConfig::Get().m_misc.vec2ScreenSize;
+
+        if(stConfig.m_flAimFOV <= 0.f)
+            return;
+
+        ImVec2 screenCenter = ImVec2(vec2ScreenSize.x / 2.f, vec2ScreenSize.y / 2.f);
+
+        // At 90 FOV, the edge of the screen is at screenWidth/2 pixels from center.
+        // So radius = (aimFOV / 90.f) * (screenWidth / 2.f)
+        float flRadius = (stConfig.m_flAimFOV / 90.f) * (vec2ScreenSize.x / 2.f);
+
+        pDrawList->AddCircle(screenCenter, flRadius, IM_COL32(255, 0, 0, 100), 64, 2.0f);
+    }
+
     void Render(SDK::UWorld* pGWorld, SDK::APlayerController* pPlayerController) {
         if(!Cheat::g_bIsInGame)
             return;
@@ -686,6 +702,11 @@ namespace ESP
 
             return lhs.m_flDistance > rhs.m_flDistance;
         });
+
+        if (GetConfig().bDrawFovCircle)
+        {
+            DrawFovCircle(pGWorld, pPlayerController, pDrawList);
+        }
         
         if (!GetConfig().bESP)
             return;

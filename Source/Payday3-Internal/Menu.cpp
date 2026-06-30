@@ -235,8 +235,10 @@ bool CheatConfig::Save() const{
     fileConfig << "# Payday3-Internal config\n";
     Write("config.version", g_iConfigVersion);
 
+    const auto& espConfig = ESP::GetConfig();
     Write("aimbot.enabled", m_aimbot.m_bEnabled);
     Write("aimbot.fov", m_aimbot.m_flAimFOV);
+    Write("aimbot.fovCircle", espConfig.bDrawFovCircle);
     Write("aimbot.sorting", static_cast<int>(m_aimbot.m_eSorting));
     Write("aimbot.targets.guards", m_aimbot.m_bGuards);
     Write("aimbot.targets.specials", m_aimbot.m_bSpecials);
@@ -277,7 +279,6 @@ bool CheatConfig::Save() const{
     Write("misc.superToss.enabled", m_misc.m_bSuperToss);
     Write("misc.superToss.velocity", m_misc.m_flSuperToss);
 
-    const auto& espConfig = ESP::GetConfig();
     Write("esp.enabled", espConfig.bESP);
     Write("esp.normal.box", espConfig.m_stNormalEnemies.m_bBox);
     Write("esp.normal.health", espConfig.m_stNormalEnemies.m_bHealth);
@@ -416,6 +417,8 @@ bool CheatConfig::Load()
     };
 
     int iVersion{};
+    auto& espConfig = ESP::GetConfig();
+
     if (Read("config.version", iVersion) && iVersion != g_iConfigVersion)
         Utils::LogDebug(std::format("Loading config version {} with parser version {}", iVersion, g_iConfigVersion));
 
@@ -424,6 +427,8 @@ bool CheatConfig::Load()
         m_aimbot.m_flAimFOV = std::clamp(m_aimbot.m_flAimFOV, 0.0f, 180.0f);
 
     int iSorting{};
+
+    Read("aimbot.fovCircle", espConfig.bDrawFovCircle);
     if (Read("aimbot.sorting", iSorting)
         && iSorting >= static_cast<int>(Aimbot_t::ESorting::Smart)
         && iSorting <= static_cast<int>(Aimbot_t::ESorting::Threat))
@@ -476,7 +481,6 @@ bool CheatConfig::Load()
     if (Read("misc.superToss.velocity", m_misc.m_flSuperToss))
         m_misc.m_flSuperToss = std::max(0.0f, m_misc.m_flSuperToss);
 
-    auto& espConfig = ESP::GetConfig();
     Read("esp.enabled", espConfig.bESP);
 
     Read("esp.normal.box", espConfig.m_stNormalEnemies.m_bBox);
@@ -529,6 +533,8 @@ void CheatConfig::Aimbot_t::Draw(){
         return;
 
     ImGui::SliderFloat("Aim FOV", &m_flAimFOV, 0.f, 180.f, "%0.0f");
+
+    ImGui::Checkbox("Draw FOV Circle", &ESP::GetConfig().bDrawFovCircle);
 
     static const char* aSortingItems[]{ "Smart", "FOV", "Threat" };
     ImGui::Combo("Sorting Method", reinterpret_cast<int*>(&m_eSorting), aSortingItems, IM_ARRAYSIZE(aSortingItems));
@@ -817,8 +823,9 @@ namespace Menu
 	}
 
     void PostDraw() {
-        auto vec2ScreenSize = ImGui::GetIO().DisplaySize;
-        auto vec2Pos = ImVec2{ vec2ScreenSize.x / 2.f + 10.f, vec2ScreenSize.y / 2.f + 10.f };
+        // Moved to config to be grabbed by other methods instead of regrabbing again
+        //auto vec2ScreenSize = ImGui::GetIO().DisplaySize;
+        auto vec2Pos = ImVec2{ CheatConfig::Get().m_misc.vec2ScreenSize.x / 2.f + 10.f, CheatConfig::Get().m_misc.vec2ScreenSize.y / 2.f + 10.f };
         auto pDrawList = ImGui::GetBackgroundDrawList();
 
         #ifdef _DEBUG

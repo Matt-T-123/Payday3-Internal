@@ -297,6 +297,8 @@ struct CheatConfig{
 
         
         void Draw();
+
+        ImVec2 vec2ScreenSize = ImGui::GetIO().DisplaySize;
     };
 
     Misc_t m_misc{};

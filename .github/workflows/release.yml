@@ -1,104 +1,65 @@
-name: Release
+name: Release Build
 
 on:
+  release:
+    types: [created, published]
   push:
     tags:
-      - 'v*.*.*'
+      - 'v*'
   workflow_dispatch:
-    inputs:
-      version:
-        description: 'Release version (e.g., v1.0.0)'
-        required: true
-        type: string
 
 permissions:
   contents: write
 
 jobs:
-  build-release:
+  build:
     runs-on: windows-latest
+    timeout-minutes: 5
+    strategy:
+      fail-fast: false
+      matrix:
+        build_configuration: [release]
+        architecture: [x64]
 
     steps:
-    - name: Checkout code
+    - name: Checkout Repository with Submodules
       uses: actions/checkout@v4
+      with:
+        submodules: recursive  # Fetch submodules recursively
+        fetch-depth: 0  # Ensures a full clone (needed for some submodules)
 
-    - name: Setup xmake
+    - name: Initialize and Update Submodules (if needed)
+      run: |
+        git submodule sync --recursive
+        git submodule update --init --recursive
+
+    - name: Install XMake
       uses: xmake-io/github-action-setup-xmake@v1
       with:
         xmake-version: latest
-        build-cache: true
 
-    - name: Configure xmake (Release)
-      timeout-minutes: 15
+    - name: Configure XMake
       run: |
-        xmake update
-        xmake global --clean
-        xmake config -m release -a x64 -p windows -y -vD
+        xmake f -m ${{ matrix.build_configuration }} -a ${{ matrix.architecture }} -y
 
-    - name: Build project (Release)
-      timeout-minutes: 20
-      run: xmake build Payday3-Internal
-
-    - name: Package Release artifacts (DLL + PDB)
+    - name: Build with XMake
       run: |
-        mkdir release-package
-        xcopy /E /I Build\Release release-package\
-        echo "Build completed on $(Get-Date -Format 'yyyy-MM-dd HH:mm:ss')" > release-package\BUILD_INFO.txt
-      shell: pwsh
+        xmake build
 
-    - name: Package UC artifacts (Source + DLL + PDB)
+    - name: Upload Build Artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: Payday3-Internal_V2-${{ matrix.build_configuration }}-${{ matrix.architecture }}
+        path: Build/${{ matrix.build_configuration }}/Payday3-Internal_V2.dll
+
+    - name: Create Release Archive
       run: |
-        mkdir uc-package
-        git archive HEAD | tar -x -C uc-package
-        xcopy /E /I Build\Release uc-package\Build\Release\
-        echo "Build completed on $(Get-Date -Format 'yyyy-MM-dd HH:mm:ss')" > uc-package\BUILD_INFO.txt
-      shell: pwsh
+        Compress-Archive -Path Build/${{ matrix.build_configuration }}/Payday3-Internal_V2.dll -DestinationPath Payday3-Internal_V2-${{ matrix.build_configuration }}-${{ matrix.architecture }}.zip
 
-    - name: Create ZIP archives
-      run: |
-        Compress-Archive -Path release-package\* -DestinationPath Payday3-Internal-Release.zip
-        Compress-Archive -Path uc-package\* -DestinationPath Payday3-Internal-UC.zip
-      shell: pwsh
-
-    - name: Get version
-      id: get_version
-      run: |
-        if ("${{ github.event_name }}" -eq "workflow_dispatch") {
-          $version = "${{ github.event.inputs.version }}"
-        } else {
-          $version = "${{ github.ref_name }}"
-        }
-        echo "VERSION=$version" >> $env:GITHUB_OUTPUT
-      shell: pwsh
-
-    - name: Create Release
+    - name: Upload Release Asset
+      if: github.event_name == 'release'
       uses: softprops/action-gh-release@v1
       with:
-        tag_name: ${{ steps.get_version.outputs.VERSION }}
-        name: Release ${{ steps.get_version.outputs.VERSION }}
-        draft: false
-        prerelease: false
-        files: |
-          Payday3-Internal-Release.zip
-          Payday3-Internal-UC.zip
-        body: |
-          ## Payday3-Internal ${{ steps.get_version.outputs.VERSION }}
-          
-          ### Packages
-          - **Payday3-Internal-Release.zip** - Contains DLL + PDB (for users)
-          - **Payday3-Internal-UC.zip** - Contains Source + DLL + PDB (for developers)
-          
-          ### Changes
-          - Built with xmake in release mode
-          - Windows x64 architecture
-          
-          ### Installation
-          1. Download `Payday3-Internal-Release.zip` (or `Payday3-Internal-UC.zip` if you want the source)
-          2. Extract the archive
-          3. Follow the instructions in README.md
-          
-          ### Build Information
-          - Build Date: ${{ github.event.head_commit.timestamp }}
-          - Commit: ${{ github.sha }}
+        files: Payday3-Internal_V2-${{ matrix.build_configuration }}-${{ matrix.architecture }}.zip
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

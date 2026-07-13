@@ -15,15 +15,14 @@
 				"windows",
 				"&&",
 				"xmake",
-				"build",
-				"Payday3-Internal"
+				"build"
 			],
 			"group": {
 				"kind": "build",
 				"isDefault": true
 			},
 			"problemMatcher": [],
-			"detail": "Build Payday3-Internal in debug mode for Windows x64"
+			"detail": "Build in debug mode for Windows x64"
 		},
 		{
 			"label": "xmake: Build (Release)",
@@ -39,12 +38,11 @@
 				"windows",
 				"&&",
 				"xmake",
-				"build",
-				"Payday3-Internal"
+				"build"
 			],
 			"group": "build",
 			"problemMatcher": [],
-			"detail": "Build Payday3-Internal in release mode for Windows x64"
+			"detail": "Build in release mode for Windows x64"
 		},
 		{
 			"label": "xmake: Clean",
@@ -74,12 +72,11 @@
 				"clean",
 				"&&",
 				"xmake",
-				"build",
-				"Payday3-Internal"
+				"build"
 			],
 			"group": "build",
 			"problemMatcher": [],
-			"detail": "Clean and rebuild Payday3-Internal in debug mode"
+			"detail": "Clean and rebuild in debug mode"
 		},
 		{
 			"label": "xmake: Rebuild (Release)",
@@ -98,12 +95,11 @@
 				"clean",
 				"&&",
 				"xmake",
-				"build",
-				"Payday3-Internal"
+				"build"
 			],
 			"group": "build",
 			"problemMatcher": [],
-			"detail": "Clean and rebuild Payday3-Internal in release mode"
+			"detail": "Clean and rebuild in release mode"
 		},
 		{
 			"label": "xmake: Update Compile Commands",

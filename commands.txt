@@ -1,5 +1,7 @@
 These are scuffed ass powershell commands to "fix" a new dumped sdk
 
+Edit: Please do not use this in v2... If it's needed then I'll delete this line else I'll delete this file.
+
 Nuke all DUMPER7_ASSERTS_*
 Get-ChildItem -Path "C:\Users\Omega\Desktop\GitHub\Payday3-Internal\Source\Payday3-Internal\Dumper-7\SDK" -Recurse -File | ForEach-Object { (Get-Content $_.FullName -Raw) -replace 'DUMPER7_ASSERTS_\w+;\r?\n', '' | Set-Content $_.FullName -NoNewline }
 

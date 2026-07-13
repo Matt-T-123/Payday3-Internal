@@ -17,7 +17,7 @@ Requires xmake, and an installation of VisualStudio with the C++ build tools for
 
 ```cmd
 xmake config -m debug   # or -m release
-xmake build Payday3-Internal
+xmake build
 ```
 
 Output: `Build/Debug/` or `Build/Release/`
@@ -35,6 +35,8 @@ Output: `Build/Debug/` or `Build/Release/`
 - **Remove Streamline DLSS**: I have yet to find a fix so stop streamline from crashing the game upon init of the dx12 hook so delete all the files in `C:\Path\To\PAYDAY3\Engine\Plugins\Runtime\Nvidia\Streamline\Binaries\ThirdParty\Win64`
 - **Injection**: Use any DLL injector to inject `Payday3-Internal.dll` into the `PAYDAY3Client-Win64-Shipping.exe` process.
 - **In-Game**: Press `INSERT` to open the menu and `END` to unload the cheat.
+
+**Note:** v2 hasn't been tested on Proton (but most likely does work).
 
 ### Proton
 - **Supports Proton:** As of v1.2.13b & [#6](https://github.com/Omega172/Payday3-Internal/pull/6), the cheat should work on both Windows and Linux (proton) versions of the game. Thanks to [alexgot1151](https://github.com/alexgot1151)

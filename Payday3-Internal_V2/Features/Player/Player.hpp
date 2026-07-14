@@ -109,6 +109,10 @@ private:
 
 	void noRecoil(bool bEnabled);
 
+	void noSpread(bool bEnabled);
+
+	void fireRate(bool bEnabled);
+	
 	bool g_bDidBackupWeaponData = false;
 	//bool BackupWeaponData();
 

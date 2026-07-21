@@ -1,5 +1,7 @@
 #include "pch.h"
 #include "Player.hpp"
+#include <vector>
+#include <algorithm>
 
 bool Player::SetupMenu()
 {
@@ -44,6 +46,27 @@ bool Player::SetupMenu()
 
 bool Player::Setup()
 {
+	m_pNoRecoil->SetOnValueChangedCallback([this](const bool, const bool bNewValue) {
+		if (!bNewValue)
+		{
+			noRecoil(false);
+		}
+	});
+
+	m_pNoSpread->SetOnValueChangedCallback([this](const bool, const bool bNewValue) {
+		if (!bNewValue)
+		{
+			noSpread(false);
+		}
+	});
+
+	m_pFireRate->SetOnValueChangedCallback([this](const bool, const bool bNewValue) {
+		if (!bNewValue)
+		{
+			fireRate(false);
+		}
+	});
+
 	return true;
 }
 void Player::HandleMenu()
@@ -309,73 +332,138 @@ bool BackupWeaponData(){ //copied straight from v1 and modified to work with v2
     return true;
 }
 
-void Player::noRecoil(bool bEnabled)
+WeaponDataBackupEntry_t* Player::GetWeaponBackupData(SDK::USBZRangedWeaponData* pWeaponData)
 {
-	auto* localChar = Unreal::GetLocalCharacter();
+    if (!pWeaponData)
+        return nullptr;
 
-	if (!localChar || !localChar->FPCameraAttachment)
-		return;
+    auto* pEquippable = pWeaponData->EquippableClass.Get();
+    if (!pEquippable)
+        return nullptr;
 
-	auto* weaponData = reinterpret_cast<SDK::USBZRangedWeaponData*>(
-		localChar->FPCameraAttachment->EquippedWeaponData);
+    std::string sName = pEquippable->Name.ToString().substr(16);
+    sName.resize(sName.size() - 2);
 
-	if (!weaponData || !weaponData->RecoilData)
-		return;
+    size_t hash = std::hash<std::string>{}(sName);
 
-	if (bEnabled)
-	{
-		auto pEquippable = weaponData->EquippableClass.Get();
-		if (!pEquippable)
-			return;
+    auto itrEntry = g_mapWeaponDataBackup.find(hash);
+    if (itrEntry == g_mapWeaponDataBackup.end())
+    {
+        return nullptr;
+    }
 
-		std::string sName = pEquippable->Name.ToString().substr(16);
-		sName.resize(sName.size() - 2);
+    return &itrEntry->second;
+}
 
-		size_t hash = std::hash<std::string>{}(sName);
+std::vector<SDK::USBZRangedWeaponData*> Player::GetCurrentWeaponData(SDK::ASBZPlayerCharacter* pLocalChar)
+{
+	std::vector<SDK::USBZRangedWeaponData*> weapons;
 
-		// Backup weapon if we haven't already
-		if (g_mapWeaponDataBackup.find(hash) == g_mapWeaponDataBackup.end())
-		{
-			WeaponDataBackupEntry_t backup{};
-
-			backup.m_pWeaponData = weaponData;
-
-			backup.m_flViewSpeedDeflect = weaponData->RecoilData->ViewKick.SpeedDeflect;
-
-			backup.m_flGunKickBackSpeedDeflect = weaponData->RecoilData->GunKickBack.SpeedDeflect;
-
-			backup.m_flGunSpeedDeflect = weaponData->RecoilData->GunKickXY.SpeedDeflect;
-
-			g_mapWeaponDataBackup.emplace(hash, backup);
+	// Get weapon from FPCameraAttachment (currently equipped)
+	if (pLocalChar->FPCameraAttachment) {
+		auto* equippedData = pLocalChar->FPCameraAttachment->EquippedWeaponData;
+		if (equippedData && equippedData->IsA(SDK::USBZRangedWeaponData::StaticClass())) {
+			weapons.push_back(reinterpret_cast<SDK::USBZRangedWeaponData*>(equippedData));
 		}
-
-		// Apply no recoil
-		weaponData->RecoilData->ViewKick.SpeedDeflect = 0.f;
-		weaponData->RecoilData->GunKickBack.SpeedDeflect = 0.f;
-		weaponData->RecoilData->GunKickXY.SpeedDeflect = 0.f;
-
-		return;
 	}
 
-	// Restore every weapon modified
-	for (auto& [hash, backup] : g_mapWeaponDataBackup)
-	{
-		auto* data = backup.m_pWeaponData;
-
-		if (!data || !data->RecoilData)
+	// Get weapons from EquippableArray (all carried weapons)
+	for (UC::int32 i = 0; i < pLocalChar->EquippableArray.Num(); ++i) {
+		if (!pLocalChar->EquippableArray.IsValidIndex(i))
 			continue;
 
-		data->RecoilData->ViewKick.SpeedDeflect =
-			backup.m_flViewSpeedDeflect;
+		auto* equippable = pLocalChar->EquippableArray[i];
+		if (!equippable)
+			continue;
 
-		data->RecoilData->GunKickBack.SpeedDeflect =
-			backup.m_flGunKickBackSpeedDeflect;
-
-		data->RecoilData->GunKickXY.SpeedDeflect =
-			backup.m_flGunSpeedDeflect;
+		auto* weaponData = equippable->EquippableConfig.EquippableData;
+		if (weaponData && weaponData->IsA(SDK::USBZRangedWeaponData::StaticClass())) {
+			auto* rangedData = reinterpret_cast<SDK::USBZRangedWeaponData*>(weaponData);
+			if (std::find(weapons.begin(), weapons.end(), rangedData) == weapons.end()) {
+				weapons.push_back(rangedData);
+			}
+		}
 	}
+	return weapons;
+}
 
-	g_mapWeaponDataBackup.clear();
+void Player::noRecoil(bool bEnabled)
+{
+	SDK::ASBZPlayerCharacter* localChar = Unreal::GetLocalCharacter();
+	if (!localChar || !g_bDidBackupWeaponData)
+		return;
+
+	for (auto* weaponData : GetCurrentWeaponData(localChar)) {
+		if (!weaponData || !weaponData->RecoilData)
+			continue;
+
+		if (bEnabled) {
+			weaponData->RecoilData->ViewKick.SpeedDeflect = 0.f;
+			weaponData->RecoilData->GunKickBack.SpeedDeflect = 0.f;
+			weaponData->RecoilData->GunKickXY.SpeedDeflect = 0.f;
+		} else {
+			auto* backup = GetWeaponBackupData(weaponData);
+			if (backup) {
+				weaponData->RecoilData->ViewKick.SpeedDeflect = backup->m_flViewSpeedDeflect;
+				weaponData->RecoilData->GunKickBack.SpeedDeflect = backup->m_flGunKickBackSpeedDeflect;
+				weaponData->RecoilData->GunKickXY.SpeedDeflect = backup->m_flGunSpeedDeflect;
+			}
+		}
+	}
+}
+
+void Player::noSpread(bool bEnabled)
+{
+	SDK::ASBZPlayerCharacter* localChar = Unreal::GetLocalCharacter();
+	if (!localChar || !g_bDidBackupWeaponData)
+		return;
+
+	for (auto* weaponData : GetCurrentWeaponData(localChar)) {
+		if (!weaponData || !weaponData->SpreadData)
+			continue;
+
+		if (bEnabled) {
+			weaponData->SpreadData->InnerClusterSpreadMultiplier = 
+				weaponData->SpreadData->FireSpreadStart = 
+				weaponData->SpreadData->FireSpreadMinCap = 
+				weaponData->SpreadData->FireSpreadCap = 
+				weaponData->SpreadData->FireSpreadIncrease = 0.f;
+		} else {
+			auto* backup = GetWeaponBackupData(weaponData);
+			if (backup) {
+				weaponData->SpreadData->InnerClusterSpreadMultiplier = backup->m_flInnerClusterSpreadMultiplier;
+				weaponData->SpreadData->FireSpreadStart = backup->m_flFireSpreadStart;
+				weaponData->SpreadData->FireSpreadMinCap = backup->m_flFireSpreadMinCap;
+				weaponData->SpreadData->FireSpreadCap = backup->m_flFireSpreadCap;
+				weaponData->SpreadData->FireSpreadIncrease = backup->m_flFireSpreadIncrease;
+			}
+		}
+	}
+}
+
+void Player::fireRate(bool bEnabled)
+{
+	SDK::ASBZPlayerCharacter* localChar = Unreal::GetLocalCharacter();
+	if (!localChar || !g_bDidBackupWeaponData)
+		return;
+
+	for (auto* weaponData : GetCurrentWeaponData(localChar)) {
+		if (!weaponData || !weaponData->FireData)
+			continue;
+
+		if (bEnabled) {
+			weaponData->FireData->RoundsPerMinute = 
+				weaponData->FireData->ProjectilesPerFiredRound = m_pFireRateSlider->GetValue();
+			weaponData->FireData->FireMode = SDK::ESBZFireMode::Auto;
+		} else {
+			auto* backup = GetWeaponBackupData(weaponData);
+			if (backup) {
+				weaponData->FireData->RoundsPerMinute = backup->m_flRoundsPerMinute;
+				weaponData->FireData->ProjectilesPerFiredRound = backup->m_iProjectilesPerFiredRound;
+				weaponData->FireData->FireMode = backup->m_eFireMode;
+			}
+		}
+	}
 }
 
 void Player::Run()
@@ -384,7 +472,6 @@ void Player::Run()
 	{
 		g_bDidBackupWeaponData = BackupWeaponData();
 	}
-
 	/////////////////Tab 1///////////////////
 
 	// Godmode
@@ -502,36 +589,16 @@ void Player::Run()
 	{
 		noRecoil(true);
 	}
-	else 
-	{
-		noRecoil(false);
-	}
 
 	//No Spread
-	if (m_pNoSpread->GetValue()) //Needs rework to return spread back to normal on disable
+	if (m_pNoSpread->GetValue())
 	{
-		if (auto* localChar = Unreal::GetLocalCharacter())
-		{
-
-			auto* SpreadData = reinterpret_cast<SDK::USBZRangedWeaponData*>(localChar->FPCameraAttachment->EquippedWeaponData)->SpreadData;
-			if (SpreadData)
-			{
-				SpreadData->InnerClusterSpreadMultiplier = SpreadData->FireSpreadStart = SpreadData->FireSpreadMinCap = SpreadData->FireSpreadCap = SpreadData->FireSpreadIncrease = 0.f;
-			}
-		}
+		noSpread(true);
 	}
 
 	//Fire Rate
-	if (m_pFireRate->GetValue()) //Needs rework to return fire rate back to normal on disable
+	if (m_pFireRate->GetValue())
 	{
-		if (auto* localChar = Unreal::GetLocalCharacter())
-		{
-			auto* FireData = reinterpret_cast<SDK::USBZRangedWeaponData*>(localChar->FPCameraAttachment->EquippedWeaponData)->FireData;
-			if (FireData)
-			{
-				FireData->ProjectilesPerFiredRound = m_pFireRateSlider->GetValue();
-				FireData->FireMode = SDK::ESBZFireMode::Auto;
-			}
-		}
+		fireRate(true);
 	}
 }

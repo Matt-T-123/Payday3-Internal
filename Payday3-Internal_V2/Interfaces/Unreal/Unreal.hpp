@@ -113,6 +113,17 @@ public:
 		return cached;
 	}
 
+	static SDK::USBZRangedWeaponData* getWeaponData()
+	{
+		SDK::ASBZPlayerCharacter* localChar = GetLocalCharacter();
+		if (!localChar) return nullptr;
+
+		auto* weaponData = localChar->FPCameraAttachment->EquippedWeaponData;
+		if (!weaponData) return nullptr;
+
+		return reinterpret_cast<SDK::USBZRangedWeaponData*>(weaponData);
+	}
+
 	static SDK::APlayerCameraManager* GetPlayerCameraManager()
 	{
 		SDK::APlayerController* pPlayerController = GetPlayerController();

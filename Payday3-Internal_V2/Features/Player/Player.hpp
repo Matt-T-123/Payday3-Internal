@@ -1,6 +1,26 @@
 #pragma once
 #include "pch.h"
 
+struct WeaponDataBackupEntry_t
+{
+    // Recoil
+    float m_flViewSpeedDeflect;
+    float m_flGunKickBackSpeedDeflect;
+    float m_flGunSpeedDeflect;
+
+    // Spread
+    float m_flInnerClusterSpreadMultiplier;
+    float m_flFireSpreadStart;
+    float m_flFireSpreadMinCap;
+    float m_flFireSpreadCap;
+    float m_flFireSpreadIncrease;
+
+    // Fire
+    uint32_t m_iProjectilesPerFiredRound;
+    float m_flRoundsPerMinute;
+    SDK::ESBZFireMode m_eFireMode;
+};
+
 class Player : public BaseFeature
 {
 private:
@@ -109,8 +129,13 @@ private:
 
 	void noRecoil(bool bEnabled);
 
-	bool g_bDidBackupWeaponData = false;
-	//bool BackupWeaponData();
+	void noSpread(bool bEnabled);
+
+	void fireRate(bool bEnabled);
+	
+	bool g_bDidBackupWeaponData;
+	WeaponDataBackupEntry_t* GetWeaponBackupData(SDK::USBZRangedWeaponData* pWeaponData);
+	std::vector<SDK::USBZRangedWeaponData*> GetCurrentWeaponData(SDK::ASBZPlayerCharacter* pLocalChar);
 
 public:
 	bool SetupMenu();
@@ -119,28 +144,6 @@ public:
 	void Run();
 	RadioButtonIcon* GetMenuButton() const { return m_pMenuButton.get(); }
 	std::string GetName() { return "Player"; };
-};
-
-struct WeaponDataBackupEntry_t
-{
-    SDK::USBZRangedWeaponData* m_pWeaponData = nullptr;
-
-    // Recoil
-    float m_flViewSpeedDeflect;
-    float m_flGunKickBackSpeedDeflect;
-    float m_flGunSpeedDeflect;
-
-    // Spread
-    float m_flInnerClusterSpreadMultiplier;
-    float m_flFireSpreadStart;
-    float m_flFireSpreadMinCap;
-    float m_flFireSpreadCap;
-    float m_flFireSpreadIncrease;
-
-    // Fire
-    uint32_t m_iProjectilesPerFiredRound;
-    float m_flRoundsPerMinute;
-    SDK::ESBZFireMode m_eFireMode;
 };
 
 static std::unordered_map<size_t, WeaponDataBackupEntry_t> g_mapWeaponDataBackup;

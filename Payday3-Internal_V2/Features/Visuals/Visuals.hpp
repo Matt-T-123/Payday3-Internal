@@ -32,12 +32,28 @@ private:
 		"VISUALS_TAB1_RIGHT"Hashed,
 		ElementBase::Style_t{ .eSameLine = ElementBase::ESameLine::Same },
 		ImGuiChildFlags_Border);
+	
+	std::unique_ptr<GroupChild> m_pTab1Bottom = std::make_unique<GroupChild>(
+		"VISUALS_TAB1_BOTTOM",
+		"VISUALS_TAB1_BOTTOM"Hashed,
+		ElementBase::Style_t(),
+		ImGuiChildFlags_Border);
 
 	std::unique_ptr<Checkbox> m_pBoundingBox = std::make_unique<Checkbox>("VISUALS_BOUNDING_BOX", "VISUALS_BOUNDING_BOX"Hashed);
-	std::unique_ptr<ColorPicker> m_pBoundingBoxColor = std::make_unique<ColorPicker>("VISUALS_BOUNDING_BOX_COLOR", "VISUALS_BOUNDING_BOX_COLOR"Hashed, ElementBase::Style_t{ .iFlags = ImGuiComboFlags_WidthFitPreview });
+	std::unique_ptr<ColorPicker> m_pBoundingBoxCopColor = std::make_unique<ColorPicker>("VISUALS_BOUNDING_BOX_COP_COLOR", "VISUALS_BOUNDING_BOX_COP_COLOR"Hashed);
+	std::unique_ptr<ColorPicker> m_pBoundingBoxCivilianColor = std::make_unique<ColorPicker>("VISUALS_BOUNDING_BOX_CIVILIAN_COLOR", "VISUALS_BOUNDING_BOX_CIVILIAN_COLOR"Hashed);
+
+	std::unique_ptr<Checkbox> m_pName = std::make_unique<Checkbox>("VISUALS_NAME", "VISUALS_NAME"Hashed);
+	std::unique_ptr<ColorPicker> m_pNameCopColor = std::make_unique<ColorPicker>("VISUALS_NAME_COP_COLOR", "VISUALS_NAME_COP_COLOR"Hashed);
+	std::unique_ptr<ColorPicker> m_pNameCivilianColor = std::make_unique<ColorPicker>("VISUALS_NAME_CIVILIAN_COLOR", "VISUALS_NAME_CIVILIAN_COLOR"Hashed);
+
+	std::unique_ptr<Checkbox> m_pDistance = std::make_unique<Checkbox>("VISUALS_DISTANCE", "VISUALS_DISTANCE"Hashed);
+	std::unique_ptr<ColorPicker> m_pDistanceCopColor = std::make_unique<ColorPicker>("VISUALS_DISTANCE_COP_COLOR", "VISUALS_DISTANCE_COP_COLOR"Hashed);
+	std::unique_ptr<ColorPicker> m_pDistanceCivilianColor = std::make_unique<ColorPicker>("VISUALS_DISTANCE_CIVILIAN_COLOR", "VISUALS_DISTANCE_CIVILIAN_COLOR"Hashed);
 
 	std::unique_ptr<Checkbox> m_pHealthBar = std::make_unique<Checkbox>("VISUALS_HEALTH_BAR", "VISUALS_HEALTH_BAR"Hashed);
-	std::unique_ptr<ColorPicker> m_pHealthBarColor = std::make_unique<ColorPicker>("VISUALS_HEALTH_BAR_COLOR", "VISUALS_HEALTH_BAR_COLOR"Hashed);
+	std::unique_ptr<ColorPicker> m_pHealthBarCopColor = std::make_unique<ColorPicker>("VISUALS_HEALTH_BAR_COP_COLOR", "VISUALS_HEALTH_BAR_COP_COLOR"Hashed);
+	std::unique_ptr<ColorPicker> m_pHealthBarCivilianColor = std::make_unique<ColorPicker>("VISUALS_HEALTH_BAR_CIVILIAN_COLOR", "VISUALS_HEALTH_BAR_CIVILIAN_COLOR"Hashed);
 
 	std::unique_ptr<Checkbox> m_pArmorBar = std::make_unique<Checkbox>("VISUALS_ARMOR_BAR", "VISUALS_ARMOR_BAR"Hashed);
 	std::unique_ptr<ColorPicker> m_pArmorBarColor = std::make_unique<ColorPicker>("VISUALS_ARMOR_BAR_COLOR", "VISUALS_ARMOR_BAR_COLOR"Hashed);
@@ -51,9 +67,42 @@ private:
 	std::unique_ptr<Checkbox> m_pKeyItem = std::make_unique<Checkbox>("VISUALS_KEY_ITEM", "VISUALS_KEY_ITEM"Hashed);
 	std::unique_ptr<ColorPicker> m_pKeyItemColor = std::make_unique<ColorPicker>("VISUALS_KEY_ITEM_COLOR", "VISUALS_KEY_ITEM_COLOR"Hashed);
 
+	std::unique_ptr<MultiSelectCombo> m_pFilters = std::make_unique<MultiSelectCombo>("VISUALS_FILTERS", "VISUALS_FILTERS"Hashed, ElementBase::Style_t{ .vec2Size = ImVec2(-0.1f, 0) });
+
+	struct ESPData
+	{
+		ImVec4 Box;
+		std::string Name;
+		float Health;
+		float HealthMax;
+		float Armor;
+		float ArmorMax;
+		float Distance;
+		bool IsCop;
+		bool IsCivilian;
+	};
+	std::vector<ESPData> m_vESPData;
+
+	enum class EnemyType
+	{
+		None,
+		Cop,
+		Civilian,
+		Shield,
+		Dozer,
+		Cloaker,
+		Sniper,
+		Taser,
+		Techie
+	};
+
+	std::unordered_map<SDK::UClass*, EnemyType> m_ClassCache;
+
 public:
 	bool SetupMenu();
+	void UpdateMenuVisibility();
 	void HandleMenu();
+	void Render();
 	void Run();
 	RadioButtonIcon* GetMenuButton() const { return m_pMenuButton.get(); }
 	std::string GetName() { return "Visuals"; };

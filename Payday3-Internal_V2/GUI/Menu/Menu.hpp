@@ -52,6 +52,7 @@ public:
 		Child,
 		ColorPicker,
 		Combo,
+		MultiSelectCombo,
 		Hotkey,
 		InputText,
 		Menu,
@@ -999,6 +1000,158 @@ public:
 			m_iSelectedIndex = iIndex;
 			m_sPreviewlabel = m_Options[iIndex].sLabel;
 		}
+	};
+};
+
+class MultiSelectCombo : public ElementBase
+{
+protected:
+	struct ComboOption
+	{
+		std::string sLabel;
+		std::function<void(bool)> Callback;
+		bool bSelected = false;
+	};
+
+	std::string m_sPreviewlabel = "None";
+	std::function<void()> m_Callback;
+	std::vector<ComboOption> m_Options;
+
+public:
+	MultiSelectCombo(std::string sUnique, size_t ullLocalizedNameHash, Style_t stStyle = {})
+	{
+		m_sUnique = sUnique;
+		m_ullLocalizedNameHash = ullLocalizedNameHash;
+		m_stStyle = stStyle;
+	};
+
+	MultiSelectCombo(std::string sUnique, std::string sUnlocalizedName, Style_t stStyle = {})
+	{
+		m_sUnique = sUnique;
+		m_bUnlocalizedName = true;
+		m_sUnlocalizedName = sUnlocalizedName;
+		m_stStyle = stStyle;
+	};
+
+	constexpr EElementType GetType() const override
+	{
+		return EElementType::MultiSelectCombo;
+	};
+
+	void UpdatePreviewLabel()
+	{
+		int iSelected = 0;
+		m_sPreviewlabel.clear();
+
+		for (auto& option : m_Options)
+		{
+			if (option.bSelected)
+			{
+				iSelected++;
+
+				if (!m_sPreviewlabel.empty())
+					m_sPreviewlabel += ", ";
+
+				m_sPreviewlabel += option.sLabel;
+			}
+		}
+
+		if (iSelected == 0)
+		{
+			m_sPreviewlabel = "None";
+		}
+		else if (iSelected > 2)
+		{
+			m_sPreviewlabel = std::to_string(iSelected) + " selected";
+		}
+	};
+
+	void Render() override
+	{
+		if (!m_stStyle.bVisible)
+			return;
+
+		SameLine();
+
+		if (ImAdd::BeginCombo(GetName().c_str(), m_sPreviewlabel.c_str(), m_stStyle.iFlags))
+		{
+			if (m_Callback)
+			{
+				m_Callback();
+			}
+			else if (!m_Options.empty())
+			{
+				for (size_t i = 0; i < m_Options.size(); ++i)
+				{
+					bool bSelected = m_Options[i].bSelected;
+
+					if (ImAdd::Selectable(
+						m_Options[i].sLabel.c_str(),
+						bSelected,
+						ImVec2(0, 0)))
+					{
+						m_Options[i].bSelected = !m_Options[i].bSelected;
+
+						UpdatePreviewLabel();
+
+						if (m_Options[i].Callback)
+							m_Options[i].Callback(m_Options[i].bSelected);
+					}
+				}
+			}
+
+			ImGui::EndCombo();
+		}
+
+		RenderChildren();
+	};
+
+	void SetCallback(std::function<void()> Callback)
+	{
+		m_Callback = Callback;
+	};
+
+	void AddOption(std::string sLabel, std::function<void(bool)> Callback = nullptr)
+	{
+		m_Options.push_back({ sLabel, Callback, false });
+	};
+
+	void SetSelectedIndex(size_t ullIndex, bool bState)
+	{
+		if (ullIndex < m_Options.size())
+		{
+			m_Options[ullIndex].bSelected = bState;
+			UpdatePreviewLabel();
+		}
+	};
+
+	bool IsSelected(size_t ullIndex) const
+	{
+		if (ullIndex >= m_Options.size())
+			return false;
+
+		return m_Options[ullIndex].bSelected;
+	};
+
+	std::vector<int> GetSelectedIndexes() const
+	{
+		std::vector<int> vIndexes;
+
+		for (size_t i = 0; i < m_Options.size(); ++i)
+		{
+			if (m_Options[i].bSelected)
+				vIndexes.push_back(static_cast<int>(i));
+		}
+
+		return vIndexes;
+	};
+
+	void ClearSelection()
+	{
+		for (auto& option : m_Options)
+			option.bSelected = false;
+
+		UpdatePreviewLabel();
 	};
 };
 

@@ -305,6 +305,8 @@ void Visuals::Render()
         {
             std::string className = pActor->Class->Name.ToString();
 
+            Utils::LogDebug("Class name:" + className);
+
             std::transform(
                 className.begin(),
                 className.end(),
@@ -315,39 +317,51 @@ void Visuals::Render()
                 });
 
             if (className.find("security") != std::string::npos)
-            {
-                if (className.find("shield") != std::string::npos)
-                    type = EnemyType::Shield;
-                else if (className.find("dozer") != std::string::npos)
-                    type = EnemyType::Dozer;
-                else if (className.find("cloaker") != std::string::npos)
-                    type = EnemyType::Cloaker;
-                else if (className.find("sniper") != std::string::npos)
-                    type = EnemyType::Sniper;
-                else if (className.find("taser") != std::string::npos)
-                    type = EnemyType::Taser;
-                else if (className.find("tower") != std::string::npos)
-                    type = EnemyType::Techie;
-                else
-                    type = EnemyType::Cop;
-            }
+                type = EnemyType::Security;
+            else if (className.find("armedcop") != std::string::npos)
+                type = EnemyType::ArmedCop;
+            else if (className.find("shield") != std::string::npos)
+                type = EnemyType::Shield;
+            else if (className.find("dozer") != std::string::npos)
+                type = EnemyType::Dozer;
+            else if (className.find("cloaker") != std::string::npos) 
+                type = EnemyType::Cloaker;
+            else if (className.find("sniper") != std::string::npos)
+                type = EnemyType::Sniper;
+            else if (className.find("taser") != std::string::npos) 
+                type = EnemyType::Taser;
+            else if (className.find("tower") != std::string::npos) 
+                type = EnemyType::Tower;
+            else if (className.find("shotgun") != std::string::npos)
+                type = EnemyType::Shotgun;
+            else if (className.find("ar") != std::string::npos)
+                type = EnemyType::AR;
+            else if (className.find("smg") != std::string::npos)
+                type = EnemyType::SMG;
+            else if (className.find("shield") != std::string::npos)
+                type = EnemyType::Shield;
+            else if (className.find("grenadier") != std::string::npos)
+                type = EnemyType::Grenadier;
             else if (className.find("civilian") != std::string::npos)
-            {
                 type = EnemyType::Civilian;
-            }
 
             m_ClassCache.try_emplace(pActor->Class, type);
         }
 
         bool bIsCop = 
-            type == EnemyType::Cop ||
+            type == EnemyType::Security ||
+            type == EnemyType::ArmedCop ||
             type == EnemyType::Shield ||
             type == EnemyType::Dozer ||
             type == EnemyType::Cloaker ||
             type == EnemyType::Sniper ||
             type == EnemyType::Taser ||
-            type == EnemyType::Techie;
-            
+            type == EnemyType::Shotgun ||
+            type == EnemyType::AR ||
+            type == EnemyType::SMG ||
+            type == EnemyType::Tower ||
+            type == EnemyType::Grenadier;
+
         bool bIsCivilian = type == EnemyType::Civilian;
 
         if (!bIsCop && !bIsCivilian)
@@ -378,6 +392,18 @@ void Visuals::Render()
         case EnemyType::Shield:
             sName = "Shield";
             break;
+        case EnemyType::ArmedCop:
+            sName = "Armed Cop";
+            break;
+        case EnemyType::Shotgun:
+            sName = "Shotgun";
+            break;
+        case EnemyType::AR:
+            sName = "AR";
+            break;
+        case EnemyType::SMG:
+            sName = "SMG";
+            break;
         case EnemyType::Dozer:
             sName = "Dozer";
             break;
@@ -390,11 +416,14 @@ void Visuals::Render()
         case EnemyType::Taser:
             sName = "Taser";
             break;
-        case EnemyType::Techie:
-            sName = "Techie";
+        case EnemyType::Tower:
+            sName = "Tower";
             break;
-        case EnemyType::Cop:
-            sName = "Cop";
+        case EnemyType::Security:
+            sName = "Security";
+            break;
+        case EnemyType::Grenadier:
+            sName = "Grenadier";
             break;
         case EnemyType::Civilian:
             sName = "Civilian";

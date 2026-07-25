@@ -86,14 +86,19 @@ private:
 	enum class EnemyType
 	{
 		None,
-		Cop,
+		Security,
+		ArmedCop,
 		Civilian,
 		Shield,
 		Dozer,
 		Cloaker,
 		Sniper,
 		Taser,
-		Techie
+		Tower,
+		Shotgun,
+		AR,
+		SMG,
+		Grenadier
 	};
 
 	std::unordered_map<SDK::UClass*, EnemyType> m_ClassCache;

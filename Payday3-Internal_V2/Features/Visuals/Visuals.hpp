@@ -83,12 +83,24 @@ private:
 	};
 	std::vector<ESPData> m_vESPData;
 
-	enum class EnemyType
+	enum class EnemyCategory
+	{
+		None,
+		Cop,
+		Civilian
+	};
+
+	struct EnemyInfo
+	{
+		const char* Name;
+		EnemyCategory Category;
+	};
+
+	enum class EnemyType // The order between this and g_EnemyInfo must match
 	{
 		None,
 		Security,
 		ArmedCop,
-		Civilian,
 		Shield,
 		Dozer,
 		Cloaker,
@@ -98,7 +110,51 @@ private:
 		Shotgun,
 		AR,
 		SMG,
-		Grenadier
+		Grenadier,
+		Civilian,
+		SentryGun
+	};
+
+	struct EnemyLookup
+	{
+		std::string_view Keyword;
+		EnemyType Type;
+	};
+
+	static constexpr EnemyLookup g_EnemyLookup[] =
+	{
+		{ "security",   EnemyType::Security },
+		{ "armedcop",   EnemyType::ArmedCop },
+		{ "shield",     EnemyType::Shield },
+		{ "dozer",      EnemyType::Dozer },
+		{ "cloaker",    EnemyType::Cloaker },
+		{ "sniper",     EnemyType::Sniper },
+		{ "taser",      EnemyType::Taser },
+		{ "tower",      EnemyType::Tower },
+		{ "shotgun",    EnemyType::Shotgun },
+		{ "grenadier",  EnemyType::Grenadier },
+		{ "civilian",   EnemyType::Civilian },
+		{ "smg",        EnemyType::SMG },
+		{ "ar",         EnemyType::AR }
+	};
+
+	static constexpr EnemyInfo g_EnemyInfo[] =
+	{
+		{ "Unknown",    EnemyCategory::None },
+		{ "Security",   EnemyCategory::Cop },
+		{ "Armed Cop",  EnemyCategory::Cop },
+		{ "Shield",     EnemyCategory::Cop },
+		{ "Dozer",      EnemyCategory::Cop },
+		{ "Cloaker",    EnemyCategory::Cop },
+		{ "Sniper",     EnemyCategory::Cop },
+		{ "Taser",      EnemyCategory::Cop },
+		{ "Tower",      EnemyCategory::Cop },
+		{ "Shotgun",    EnemyCategory::Cop },
+		{ "AR",         EnemyCategory::Cop },
+		{ "SMG",        EnemyCategory::Cop },
+		{ "Grenadier",  EnemyCategory::Cop },
+		{ "Civilian",   EnemyCategory::Civilian },
+		{ "Sentry Gun", EnemyCategory::Cop }
 	};
 
 	std::unordered_map<SDK::UClass*, EnemyType> m_ClassCache;

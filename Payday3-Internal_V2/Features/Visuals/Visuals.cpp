@@ -183,16 +183,16 @@ void Visuals::HandleMenu()
 
         // Filters
         m_pFilters->AddOption("COP", [](bool bEnabled) {
-            Utils::LogDebug("Cops selected");
+            //Utils::LogDebug("Cops selected");
         });
         m_pFilters->AddOption("CIVILIAN", [](bool bEnabled) {
-            Utils::LogDebug("Civilians selected");
+            //Utils::LogDebug("Civilians selected");
         });
         m_pFilters->AddOption("ITEMS", [](bool bEnabled) {
-            Utils::LogDebug("Items selected");
+            //Utils::LogDebug("Items selected");
         });
         m_pFilters->AddOption("MONEY", [](bool bEnabled) {
-            Utils::LogDebug("Money selected");
+            //Utils::LogDebug("Money selected");
         });
 
         m_pTab1Bottom->AddElement(m_pFilters.get());
@@ -210,7 +210,7 @@ void Visuals::HandleMenu()
 
 
 //Before you ask, yes, this function is a fucking mess. I will clean it up another time, but for now it works so boohoo cry about it.
-//Another thing you may ask is "why is it all done in render() and not in both render() and run() ?" The answer is simple: different timings, render runs every frame, run runs 10 times per second. -
+//Another thing you may ask is "why is it all done in render() and not in both render() and run() ?" The answer is simple: different timings, render() runs every frame, run() runs 10 times per second. -
 //If we split it between the 2 then ESP gets delayed and looks god awful compared to render() which runs every frame.
 void Visuals::Render()
 {
@@ -305,7 +305,7 @@ void Visuals::Render()
         {
             std::string className = pActor->Class->Name.ToString();
 
-            Utils::LogDebug("Class name:" + className);
+            //Utils::LogDebug("Class name:" + className);
 
             std::transform(
                 className.begin(),
@@ -316,53 +316,24 @@ void Visuals::Render()
                     return static_cast<char>(std::tolower(c));
                 });
 
-            if (className.find("security") != std::string::npos)
-                type = EnemyType::Security;
-            else if (className.find("armedcop") != std::string::npos)
-                type = EnemyType::ArmedCop;
-            else if (className.find("shield") != std::string::npos)
-                type = EnemyType::Shield;
-            else if (className.find("dozer") != std::string::npos)
-                type = EnemyType::Dozer;
-            else if (className.find("cloaker") != std::string::npos) 
-                type = EnemyType::Cloaker;
-            else if (className.find("sniper") != std::string::npos)
-                type = EnemyType::Sniper;
-            else if (className.find("taser") != std::string::npos) 
-                type = EnemyType::Taser;
-            else if (className.find("tower") != std::string::npos) 
-                type = EnemyType::Tower;
-            else if (className.find("shotgun") != std::string::npos)
-                type = EnemyType::Shotgun;
-            else if (className.find("ar") != std::string::npos)
-                type = EnemyType::AR;
-            else if (className.find("smg") != std::string::npos)
-                type = EnemyType::SMG;
-            else if (className.find("shield") != std::string::npos)
-                type = EnemyType::Shield;
-            else if (className.find("grenadier") != std::string::npos)
-                type = EnemyType::Grenadier;
-            else if (className.find("civilian") != std::string::npos)
-                type = EnemyType::Civilian;
+            for (const auto& entry : g_EnemyLookup)
+            {
+                if (className.find(entry.Keyword) != std::string::npos)
+                {
+                    type = entry.Type;
+                    break;
+                }
+            }
 
             m_ClassCache.try_emplace(pActor->Class, type);
         }
 
-        bool bIsCop = 
-            type == EnemyType::Security ||
-            type == EnemyType::ArmedCop ||
-            type == EnemyType::Shield ||
-            type == EnemyType::Dozer ||
-            type == EnemyType::Cloaker ||
-            type == EnemyType::Sniper ||
-            type == EnemyType::Taser ||
-            type == EnemyType::Shotgun ||
-            type == EnemyType::AR ||
-            type == EnemyType::SMG ||
-            type == EnemyType::Tower ||
-            type == EnemyType::Grenadier;
+        const EnemyInfo& info = g_EnemyInfo[static_cast<size_t>(type)];
 
-        bool bIsCivilian = type == EnemyType::Civilian;
+        bool bIsCop       = info.Category == EnemyCategory::Cop;
+        bool bIsCivilian  = info.Category == EnemyCategory::Civilian;
+
+        const char* sName = info.Name;
 
         if (!bIsCop && !bIsCivilian)
             continue;
@@ -384,54 +355,6 @@ void Visuals::Render()
             continue;
 
         ImVec4 vec4ScreenBox = optScreenBox.value();
-
-        const char* sName = "Unknown";
-
-        switch(type)
-        {
-        case EnemyType::Shield:
-            sName = "Shield";
-            break;
-        case EnemyType::ArmedCop:
-            sName = "Armed Cop";
-            break;
-        case EnemyType::Shotgun:
-            sName = "Shotgun";
-            break;
-        case EnemyType::AR:
-            sName = "AR";
-            break;
-        case EnemyType::SMG:
-            sName = "SMG";
-            break;
-        case EnemyType::Dozer:
-            sName = "Dozer";
-            break;
-        case EnemyType::Cloaker:
-            sName = "Cloaker";
-            break;
-        case EnemyType::Sniper:
-            sName = "Sniper";
-            break;
-        case EnemyType::Taser:
-            sName = "Taser";
-            break;
-        case EnemyType::Tower:
-            sName = "Tower";
-            break;
-        case EnemyType::Security:
-            sName = "Security";
-            break;
-        case EnemyType::Grenadier:
-            sName = "Grenadier";
-            break;
-        case EnemyType::Civilian:
-            sName = "Civilian";
-            break;
-        default:
-            sName = "Unknown";
-            break;
-        }
 
         // Calculate distance
         float flDistance = (pActor->K2_GetActorLocation() - vecCameraLocation).Magnitude() / 100.0f;

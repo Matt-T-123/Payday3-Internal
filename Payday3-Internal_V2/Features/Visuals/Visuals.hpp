@@ -59,7 +59,8 @@ private:
 	std::unique_ptr<ColorPicker> m_pArmorBarColor = std::make_unique<ColorPicker>("VISUALS_ARMOR_BAR_COLOR", "VISUALS_ARMOR_BAR_COLOR"Hashed);
 
 	std::unique_ptr<Checkbox> m_pSkeleton = std::make_unique<Checkbox>("VISUALS_SKELETON", "VISUALS_SKELETON"Hashed);
-	std::unique_ptr<ColorPicker> m_pSkeletonColor = std::make_unique<ColorPicker>("VISUALS_SKELETON_COLOR", "VISUALS_SKELETON_COLOR"Hashed);
+	std::unique_ptr<ColorPicker> m_pSkeletonCopColor = std::make_unique<ColorPicker>("VISUALS_SKELETON_COP_COLOR", "VISUALS_SKELETON_COP_COLOR"Hashed);
+	std::unique_ptr<ColorPicker> m_pSkeletonCivilianColor = std::make_unique<ColorPicker>("VISUALS_SKELETON_CIVILIAN_COLOR", "VISUALS_SKELETON_CIVILIAN_COLOR"Hashed);
 
 	std::unique_ptr<Checkbox> m_pHighlight = std::make_unique<Checkbox>("VISUALS_HIGHLIGHT", "VISUALS_HIGHLIGHT"Hashed);
 	std::unique_ptr<ColorPicker> m_pHighlightColor = std::make_unique<ColorPicker>("VISUALS_HIGHLIGHT_COLOR", "VISUALS_HIGHLIGHT_COLOR"Hashed);
@@ -73,6 +74,7 @@ private:
 	{
 		ImVec4 Box;
 		std::string Name;
+		SDK::USkeletalMeshComponent* Mesh;
 		float Health;
 		float HealthMax;
 		float Armor;
@@ -157,12 +159,53 @@ private:
 		{ "Sentry Gun", EnemyCategory::Cop }
 	};
 
+	struct BoneCache
+	{
+		bool Initialized = false;
+
+		// Core body
+		int Hips = -1;
+		int Spine = -1;
+		int Spine1 = -1;
+		int Spine2 = -1;
+		int Spine3 = -1;
+		int Neck = -1;
+		int Head = -1;
+
+		// Left arm
+		int LeftShoulder = -1;
+		int LeftUpperArm = -1;      // LeftArm
+		int LeftForeArm = -1;       // LeftForeArm
+		int LeftHand = -1;
+
+		// Right arm
+		int RightShoulder = -1;
+		int RightUpperArm = -1;     // RightArm
+		int RightForeArm = -1;      // RightForeArm
+		int RightHand = -1;
+
+		// Left leg
+		int LeftUpperLeg = -1;      // LeftUpLeg
+		int LeftLowerLeg = -1;      // LeftLeg
+		int LeftFoot = -1;
+		int LeftToe = -1;            // LeftToeBase
+
+		// Right leg
+		int RightUpperLeg = -1;     // RightUpLeg
+		int RightLowerLeg = -1;     // RightLeg
+		int RightFoot = -1;
+		int RightToe = -1;           // RightToeBase
+	};
+
+	std::unordered_map<SDK::USkeletalMeshComponent*, BoneCache> m_BoneCache;
 	std::unordered_map<SDK::UClass*, EnemyType> m_ClassCache;
 
 public:
 	bool SetupMenu();
 	void UpdateMenuVisibility();
 	void HandleMenu();
+	void BuildBoneCache(SDK::USkeletalMeshComponent* mesh, BoneCache& cache);
+	void DrawBone(ImDrawList* pDrawList, SDK::APlayerController* pPlayerController, SDK::USkeletalMeshComponent* mesh, int parent, int child, ImU32 color);
 	void Render();
 	void Run();
 	RadioButtonIcon* GetMenuButton() const { return m_pMenuButton.get(); }

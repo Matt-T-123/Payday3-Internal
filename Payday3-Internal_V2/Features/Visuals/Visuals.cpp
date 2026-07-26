@@ -41,6 +41,109 @@ std::optional<ImVec4> CalculateScreenBoxForCharacter(SDK::USkeletalMeshComponent
     );
 }
 
+void Visuals::BuildBoneCache(SDK::USkeletalMeshComponent* mesh, BoneCache& cache)
+{
+    if (!mesh)
+        return;
+
+    const int numBones = mesh->GetNumBones();
+
+    for (int i = 0; i < numBones; ++i)
+    {
+        const std::string bone = mesh->GetBoneName(i).ToString();
+
+        if (bone == "Hips")
+            cache.Hips = i;
+
+        else if (bone == "Spine")
+            cache.Spine = i;
+
+        else if (bone == "Spine1")
+            cache.Spine1 = i;
+
+        else if (bone == "Spine2")
+            cache.Spine2 = i;
+
+        else if (bone == "Spine3")
+            cache.Spine3 = i;
+
+        else if (bone == "Neck")
+            cache.Neck = i;
+
+        else if (bone == "Head")
+            cache.Head = i;
+
+        // Left arm
+        else if (bone == "LeftShoulder")
+            cache.LeftShoulder = i;
+
+        else if (bone == "LeftArm")
+            cache.LeftUpperArm = i;
+
+        else if (bone == "LeftForeArm")
+            cache.LeftForeArm = i;
+
+        else if (bone == "LeftHand")
+            cache.LeftHand = i;
+
+        // Right arm
+        else if (bone == "RightShoulder")
+            cache.RightShoulder = i;
+
+        else if (bone == "RightArm")
+            cache.RightUpperArm = i;
+
+        else if (bone == "RightForeArm")
+            cache.RightForeArm = i;
+
+        else if (bone == "RightHand")
+            cache.RightHand = i;
+
+        // Left leg
+        else if (bone == "LeftUpLeg")
+            cache.LeftUpperLeg = i;
+
+        else if (bone == "LeftLeg")
+            cache.LeftLowerLeg = i;
+
+        else if (bone == "LeftFoot")
+            cache.LeftFoot = i;
+
+        else if (bone == "LeftToeBase")
+            cache.LeftToe = i;
+
+        // Right leg
+        else if (bone == "RightUpLeg")
+            cache.RightUpperLeg = i;
+
+        else if (bone == "RightLeg")
+            cache.RightLowerLeg = i;
+
+        else if (bone == "RightFoot")
+            cache.RightFoot = i;
+
+        else if (bone == "RightToeBase")
+            cache.RightToe = i;
+    }
+
+    cache.Initialized = true;
+}
+
+void Visuals::DrawBone(ImDrawList* pDrawList, SDK::APlayerController* pPlayerController, SDK::USkeletalMeshComponent* mesh, int parent, int child, ImU32 color)
+{
+    if (parent < 0 || child < 0)
+        return;
+
+    auto parentWorld = mesh->GetSocketLocation(mesh->GetBoneName(parent));
+    auto childWorld = mesh->GetSocketLocation(mesh->GetBoneName(child));
+    SDK::FVector2D p0, p1;
+
+    if (pPlayerController->ProjectWorldLocationToScreen(parentWorld, &p0, false) && pPlayerController->ProjectWorldLocationToScreen(childWorld, &p1, false))
+    {
+        pDrawList->AddLine(ImVec2(p0.X, p0.Y), ImVec2(p1.X, p1.Y), color, 1.0f);
+    }
+}
+
 bool Visuals::SetupMenu()
 {
     Localization::AddToLocale("ENG", std::initializer_list<std::pair<size_t, std::string>>{
@@ -70,7 +173,8 @@ bool Visuals::SetupMenu()
         { "VISUALS_ARMOR_BAR_COLOR"Hashed, "Armor Bar Color" },
 
         { "VISUALS_SKELETON"Hashed, "Skeleton" },
-        { "VISUALS_SKELETON_COLOR"Hashed, "Skeleton Color" },
+        { "VISUALS_SKELETON_COP_COLOR"Hashed, "Skeleton Cop Color" },
+        { "VISUALS_SKELETON_CIVILIAN_COLOR"Hashed, "Skeleton Civilian Color" },
 
         { "VISUALS_HIGHLIGHT"Hashed, "Highlight" },
         { "VISUALS_HIGHLIGHT_COLOR"Hashed, "Highlight Color" },
@@ -113,7 +217,8 @@ void Visuals::UpdateMenuVisibility()
     m_pArmorBarColor->SetVisible(m_pArmorBar->GetValue());
 
     // Skeleton
-    m_pSkeletonColor->SetVisible(m_pSkeleton->GetValue());
+    m_pSkeletonCopColor->SetVisible(m_pSkeleton->GetValue() && copSelected);
+    m_pSkeletonCivilianColor->SetVisible(m_pSkeleton->GetValue() && civilianSelected);
 
     // Highlight
     m_pHighlightColor->SetVisible(m_pHighlight->GetValue());
@@ -170,8 +275,10 @@ void Visuals::HandleMenu()
         m_pArmorBarColor->SetValue(ImVec4(0.0f, 0.5f, 1.0f, 1.0f));
         
         m_pTab1Left->AddElement(m_pSkeleton.get());
-        m_pTab1Right->AddElement(m_pSkeletonColor.get());
-        m_pSkeletonColor->SetValue(ImVec4(1.0f, 1.0f, 0.0f, 1.0f));
+        m_pTab1Right->AddElement(m_pSkeletonCopColor.get());
+        m_pTab1Right->AddElement(m_pSkeletonCivilianColor.get());
+        m_pSkeletonCopColor->SetValue(ImVec4(1.0f, 1.0f, 0.0f, 1.0f));
+        m_pSkeletonCivilianColor->SetValue(ImVec4(0.0f, 1.0f, 1.0f, 1.0f));
 
         m_pTab1Left->AddElement(m_pHighlight.get());
         m_pTab1Right->AddElement(m_pHighlightColor.get());
@@ -208,7 +315,6 @@ void Visuals::HandleMenu()
     UpdateMenuVisibility();
 }
 
-
 //Before you ask, yes, this function is a fucking mess. I will clean it up another time, but for now it works so boohoo cry about it.
 //Another thing you may ask is "why is it all done in render() and not in both render() and run() ?" The answer is simple: different timings, render() runs every frame, run() runs 10 times per second. -
 //If we split it between the 2 then ESP gets delayed and looks god awful compared to render() which runs every frame.
@@ -220,6 +326,7 @@ void Visuals::Render()
     const bool drawDistance = m_pDistance->GetValue();
     const bool drawHealthBar = m_pHealthBar->GetValue();
     const bool drawArmorBar = m_pArmorBar->GetValue();
+    const bool drawSkeleton = m_pSkeleton->GetValue();
 
     const ImU32 boxCopColor = ImGui::ColorConvertFloat4ToU32(m_pBoundingBoxCopColor->GetValue());
     const ImU32 boxCivilianColor = ImGui::ColorConvertFloat4ToU32(m_pBoundingBoxCivilianColor->GetValue());
@@ -235,11 +342,14 @@ void Visuals::Render()
 
     const ImU32 armorBarColor = ImGui::ColorConvertFloat4ToU32(m_pArmorBarColor->GetValue());
 
+    const ImU32 skeletonCopColor = ImGui::ColorConvertFloat4ToU32(m_pSkeletonCopColor->GetValue());
+    const ImU32 skeletonCivilianColor = ImGui::ColorConvertFloat4ToU32(m_pSkeletonCivilianColor->GetValue());
+
     // Clear or else it'll look like you got concussed with a cod nade. Trust me...
     m_vESPData.clear();
     m_vESPData.reserve(256); // Reserving space for 256 objects to avoid frequent reallocations, but may need to increase in the future if more objects are present than expected.
 
-    if (!drawBox && !drawName && !drawDistance && !drawHealthBar)
+    if (!drawBox && !drawName && !drawDistance && !drawHealthBar && !drawArmorBar && !drawSkeleton)
         return;
 
     SDK::UWorld* pGWorld = SDK::UWorld::GetWorld();
@@ -384,6 +494,7 @@ void Visuals::Render()
         m_vESPData.push_back({
             vec4ScreenBox,
             std::string(sName),
+            pMesh,
             flHealth,
             flHealthMax,
             flArmor,
@@ -564,6 +675,46 @@ void Visuals::Render()
                     armorBarColor
                 );
             }
+        }
+
+        // Yes it looks ugly, too bad. Dynamically obtaining & drawing the skeleton is a performance hit, manual is better.
+        if(drawSkeleton) 
+        {
+            BoneCache& cache = m_BoneCache[esp.Mesh];
+            ImU32 color = esp.IsCop ? skeletonCopColor : skeletonCivilianColor;
+
+            if (!cache.Initialized)
+            {
+                BuildBoneCache(esp.Mesh, cache);
+            }
+            // Spine
+            DrawBone(pDrawList, pPlayerController, esp.Mesh, cache.Head, cache.Neck, color);
+            DrawBone(pDrawList, pPlayerController, esp.Mesh, cache.Neck, cache.Spine3, color);
+            DrawBone(pDrawList, pPlayerController, esp.Mesh, cache.Spine3, cache.Hips, color);
+
+            // Left arm
+            DrawBone(pDrawList, pPlayerController, esp.Mesh, cache.Spine3, cache.LeftShoulder, color);
+            DrawBone(pDrawList, pPlayerController, esp.Mesh, cache.LeftShoulder, cache.LeftUpperArm, color);
+            DrawBone(pDrawList, pPlayerController, esp.Mesh, cache.LeftUpperArm, cache.LeftForeArm, color);
+            DrawBone(pDrawList, pPlayerController, esp.Mesh, cache.LeftForeArm, cache.LeftHand, color);
+
+            // Right arm
+            DrawBone(pDrawList, pPlayerController, esp.Mesh, cache.Spine3, cache.RightShoulder, color);
+            DrawBone(pDrawList, pPlayerController, esp.Mesh, cache.RightShoulder, cache.RightUpperArm, color);
+            DrawBone(pDrawList, pPlayerController, esp.Mesh, cache.RightUpperArm, cache.RightForeArm, color);
+            DrawBone(pDrawList, pPlayerController, esp.Mesh, cache.RightForeArm, cache.RightHand, color);
+
+            // Left leg
+            DrawBone(pDrawList, pPlayerController, esp.Mesh, cache.Hips, cache.LeftUpperLeg, color);
+            DrawBone(pDrawList, pPlayerController, esp.Mesh, cache.LeftUpperLeg, cache.LeftLowerLeg, color);
+            DrawBone(pDrawList, pPlayerController, esp.Mesh, cache.LeftLowerLeg, cache.LeftFoot, color);
+            DrawBone(pDrawList, pPlayerController, esp.Mesh, cache.LeftFoot, cache.LeftToe, color);
+
+            // Right leg
+            DrawBone(pDrawList, pPlayerController, esp.Mesh, cache.Hips, cache.RightUpperLeg, color);
+            DrawBone(pDrawList, pPlayerController, esp.Mesh, cache.RightUpperLeg, cache.RightLowerLeg, color);
+            DrawBone(pDrawList, pPlayerController, esp.Mesh, cache.RightLowerLeg, cache.RightFoot, color);
+            DrawBone(pDrawList, pPlayerController, esp.Mesh, cache.RightFoot, cache.RightToe, color);
         }
     }
 }

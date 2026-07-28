@@ -689,6 +689,7 @@ public:
 			}
 
 			drawList->AddText(pos + ImVec2(SideBarWidth + style.FramePadding.x, size.y - FooterHeight + style.FramePadding.y), ImGui::GetColorU32(ImGuiCol_TextDisabled), "Payday 3 Internal v2");
+			drawList->AddText(pos + ImVec2(size.x - ImGui::CalcTextSize("BETA").x - style.FramePadding.x, style.FramePadding.y), ImGui::GetColorU32(ImVec4(1.f, 0.f, 0.f, 1.f)), "BETA");
 			drawList->AddText(pos + ImVec2(size.x - ImGui::CalcTextSize((std::string("v") + STR(FRAMEWORK_VERSION)).c_str()).x - style.FramePadding.x, size.y - FooterHeight + style.FramePadding.y), ImGui::GetColorU32(ImGuiCol_SliderGrab), (std::string("v") + STR(FRAMEWORK_VERSION)).c_str());
 		}
 		RenderChildren();

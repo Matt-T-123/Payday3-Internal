@@ -140,6 +140,7 @@ void Visuals::DrawBone(ImDrawList* pDrawList, SDK::APlayerController* pPlayerCon
 
     if (pPlayerController->ProjectWorldLocationToScreen(parentWorld, &p0, false) && pPlayerController->ProjectWorldLocationToScreen(childWorld, &p1, false))
     {
+        pDrawList->AddLine(ImVec2(p0.X - 1, p0.Y - 1), ImVec2(p1.X - 1, p1.Y - 1), IM_COL32(0, 0, 0, 255), 1.1f);
         pDrawList->AddLine(ImVec2(p0.X, p0.Y), ImVec2(p1.X, p1.Y), color, 1.0f);
     }
 }
@@ -177,7 +178,6 @@ bool Visuals::SetupMenu()
         { "VISUALS_SKELETON_CIVILIAN_COLOR"Hashed, "Skeleton Civilian Color" },
 
         { "VISUALS_HIGHLIGHT"Hashed, "Highlight" },
-        { "VISUALS_HIGHLIGHT_COLOR"Hashed, "Highlight Color" },
 
         { "VISUALS_KEY_ITEM"Hashed, "Key Items" },
         { "VISUALS_KEY_ITEM_COLOR"Hashed, "Key Items Color" },
@@ -219,9 +219,6 @@ void Visuals::UpdateMenuVisibility()
     // Skeleton
     m_pSkeletonCopColor->SetVisible(m_pSkeleton->GetValue() && copSelected);
     m_pSkeletonCivilianColor->SetVisible(m_pSkeleton->GetValue() && civilianSelected);
-
-    // Highlight
-    m_pHighlightColor->SetVisible(m_pHighlight->GetValue());
 
     // Key Items
     m_pKeyItemColor->SetVisible(m_pKeyItem->GetValue());
@@ -281,8 +278,6 @@ void Visuals::HandleMenu()
         m_pSkeletonCivilianColor->SetValue(ImVec4(0.0f, 1.0f, 1.0f, 1.0f));
 
         m_pTab1Left->AddElement(m_pHighlight.get());
-        m_pTab1Right->AddElement(m_pHighlightColor.get());
-        m_pHighlightColor->SetValue(ImVec4(1.0f, 0.0f, 1.0f, 1.0f));
 
         m_pTab1Left->AddElement(m_pKeyItem.get());
         m_pTab1Right->AddElement(m_pKeyItemColor.get());
@@ -327,6 +322,7 @@ void Visuals::Render()
     const bool drawHealthBar = m_pHealthBar->GetValue();
     const bool drawArmorBar = m_pArmorBar->GetValue();
     const bool drawSkeleton = m_pSkeleton->GetValue();
+    const bool drawHighlight = m_pHighlight->GetValue();
 
     const ImU32 boxCopColor = ImGui::ColorConvertFloat4ToU32(m_pBoundingBoxCopColor->GetValue());
     const ImU32 boxCivilianColor = ImGui::ColorConvertFloat4ToU32(m_pBoundingBoxCivilianColor->GetValue());
@@ -349,7 +345,7 @@ void Visuals::Render()
     m_vESPData.clear();
     m_vESPData.reserve(256); // Reserving space for 256 objects to avoid frequent reallocations, but may need to increase in the future if more objects are present than expected.
 
-    if (!drawBox && !drawName && !drawDistance && !drawHealthBar && !drawArmorBar && !drawSkeleton)
+    if (!drawBox && !drawName && !drawDistance && !drawHealthBar && !drawArmorBar && !drawSkeleton && !drawHighlight)
         return;
 
     SDK::UWorld* pGWorld = SDK::UWorld::GetWorld();
@@ -495,6 +491,7 @@ void Visuals::Render()
             vec4ScreenBox,
             std::string(sName),
             pMesh,
+            pCharacter,
             flHealth,
             flHealthMax,
             flArmor,
@@ -518,6 +515,15 @@ void Visuals::Render()
         if (drawBox)
         {
             const ImU32 color = esp.IsCop ? boxCopColor : boxCivilianColor;
+
+            pDrawList->AddRect(
+                ImVec2(esp.Box.x - 1.0f, esp.Box.y - 1.0f),
+                ImVec2(esp.Box.z + 1.0f, esp.Box.w + 1.0f),
+                IM_COL32(0, 0, 0, 255),
+                0.0f,
+                0,
+                1.6f
+            );
 
             pDrawList->AddRect(
                 ImVec2(esp.Box.x, esp.Box.y),
@@ -618,6 +624,8 @@ void Visuals::Render()
             {
                 const ImU32 color = esp.IsCop ? nameCopColor : nameCivilianColor;
 
+                pDrawList->AddText(ImVec2(textPos.x - 1, textPos.y - 1), IM_COL32(0, 0, 0, 255), nameText.c_str());
+
                 pDrawList->AddText(textPos, color, nameText.c_str());
                 textPos.x += nameSize.x;
             }
@@ -630,6 +638,8 @@ void Visuals::Render()
             if (!distanceText.empty())
             {
                 const ImU32 color = esp.IsCop ? distanceCopColor : distanceCivilianColor;
+
+                pDrawList->AddText(ImVec2(textPos.x - 1, textPos.y - 1), IM_COL32(0, 0, 0, 255), distanceText.c_str());
 
                 pDrawList->AddText(textPos, color, distanceText.c_str());
             }
@@ -647,6 +657,12 @@ void Visuals::Render()
                 float healthBarHeight = barHeight * healthPercent;
 
                 const ImU32 healthColor = esp.IsCop ? healthBarCopColor : healthBarCivilianColor;
+
+                pDrawList->AddRectFilled(
+                    ImVec2(esp.Box.x - barWidth - 3, esp.Box.w - barHeight),
+                    ImVec2(esp.Box.x - 1, esp.Box.w),
+                    IM_COL32(0, 0, 0, 255)
+                );
 
                 // Draw health bar
                 pDrawList->AddRectFilled(
@@ -667,6 +683,12 @@ void Visuals::Render()
                 float armorPercent = esp.ArmorMax > 0 ? esp.Armor / esp.ArmorMax : 0.0f;
 
                 float armorBarHeight = barHeight * armorPercent;
+
+                pDrawList->AddRectFilled(
+                    ImVec2(esp.Box.x - barWidth * 2 - 5, esp.Box.w - armorBarHeight),
+                    ImVec2(esp.Box.x - barWidth - 3, esp.Box.w),
+                    IM_COL32(0, 0, 0, 255)
+                );
 
                 // Draw armor bar
                 pDrawList->AddRectFilled(
@@ -715,6 +737,11 @@ void Visuals::Render()
             DrawBone(pDrawList, pPlayerController, esp.Mesh, cache.RightUpperLeg, cache.RightLowerLeg, color);
             DrawBone(pDrawList, pPlayerController, esp.Mesh, cache.RightLowerLeg, cache.RightFoot, color);
             DrawBone(pDrawList, pPlayerController, esp.Mesh, cache.RightFoot, cache.RightToe, color);
+        }
+
+        if(drawHighlight) //Anyone know a good way to disable this shit ? Setting it false doesn't even disable it.
+        {
+            esp.Character->Multicast_SetMarked(true);
         }
     }
 }

@@ -63,7 +63,6 @@ private:
 	std::unique_ptr<ColorPicker> m_pSkeletonCivilianColor = std::make_unique<ColorPicker>("VISUALS_SKELETON_CIVILIAN_COLOR", "VISUALS_SKELETON_CIVILIAN_COLOR"Hashed);
 
 	std::unique_ptr<Checkbox> m_pHighlight = std::make_unique<Checkbox>("VISUALS_HIGHLIGHT", "VISUALS_HIGHLIGHT"Hashed);
-	std::unique_ptr<ColorPicker> m_pHighlightColor = std::make_unique<ColorPicker>("VISUALS_HIGHLIGHT_COLOR", "VISUALS_HIGHLIGHT_COLOR"Hashed);
 	
 	std::unique_ptr<Checkbox> m_pKeyItem = std::make_unique<Checkbox>("VISUALS_KEY_ITEM", "VISUALS_KEY_ITEM"Hashed);
 	std::unique_ptr<ColorPicker> m_pKeyItemColor = std::make_unique<ColorPicker>("VISUALS_KEY_ITEM_COLOR", "VISUALS_KEY_ITEM_COLOR"Hashed);
@@ -75,6 +74,7 @@ private:
 		ImVec4 Box;
 		std::string Name;
 		SDK::USkeletalMeshComponent* Mesh;
+		SDK::ASBZCharacter* Character;
 		float Health;
 		float HealthMax;
 		float Armor;

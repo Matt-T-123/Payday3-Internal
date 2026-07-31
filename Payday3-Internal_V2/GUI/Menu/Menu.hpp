@@ -1074,6 +1074,8 @@ public:
 
 		SameLine();
 
+		ImGui::PushID(m_sUnique.c_str());
+
 		if (ImAdd::BeginCombo(GetName().c_str(), m_sPreviewlabel.c_str(), m_stStyle.iFlags))
 		{
 			if (m_Callback)
@@ -1086,10 +1088,12 @@ public:
 				{
 					bool bSelected = m_Options[i].bSelected;
 
+					ImGui::PushID(static_cast<int>(i));
+
 					if (ImAdd::Selectable(
-						m_Options[i].sLabel.c_str(),
-						bSelected,
-						ImVec2(0, 0)))
+							m_Options[i].sLabel.c_str(),
+							bSelected,
+							ImVec2(0, 0)))
 					{
 						m_Options[i].bSelected = !m_Options[i].bSelected;
 
@@ -1098,14 +1102,18 @@ public:
 						if (m_Options[i].Callback)
 							m_Options[i].Callback(m_Options[i].bSelected);
 					}
+
+					ImGui::PopID();
 				}
 			}
 
 			ImGui::EndCombo();
 		}
 
+		ImGui::PopID();
+
 		RenderChildren();
-	};
+	}
 
 	void SetCallback(std::function<void()> Callback)
 	{

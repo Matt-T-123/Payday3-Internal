@@ -64,10 +64,13 @@ private:
 
 	std::unique_ptr<Checkbox> m_pHighlight = std::make_unique<Checkbox>("VISUALS_HIGHLIGHT", "VISUALS_HIGHLIGHT"Hashed);
 	
-	std::unique_ptr<Checkbox> m_pKeyItem = std::make_unique<Checkbox>("VISUALS_KEY_ITEM", "VISUALS_KEY_ITEM"Hashed);
-	std::unique_ptr<ColorPicker> m_pKeyItemColor = std::make_unique<ColorPicker>("VISUALS_KEY_ITEM_COLOR", "VISUALS_KEY_ITEM_COLOR"Hashed);
+	std::unique_ptr<Checkbox> m_pItem = std::make_unique<Checkbox>("VISUALS_ITEM", "VISUALS_ITEM"Hashed);
+	std::unique_ptr<ColorPicker> m_pItemCashColor = std::make_unique<ColorPicker>("VISUALS_ITEM_CASH_COLOR", "VISUALS_ITEM_CASH_COLOR"Hashed);
+	std::unique_ptr<ColorPicker> m_pItemDepositBoxColor = std::make_unique<ColorPicker>("VISUALS_ITEM_DEPOSITBOX_COLOR", "VISUALS_ITEM_DEPOSITBOX_COLOR"Hashed);
+	std::unique_ptr<ColorPicker> m_pItemKeycardColor = std::make_unique<ColorPicker>("VISUALS_ITEM_KEYCARD_COLOR", "VISUALS_ITEM_KEYCARD_COLOR"Hashed);
 
 	std::unique_ptr<MultiSelectCombo> m_pFilters = std::make_unique<MultiSelectCombo>("VISUALS_FILTERS", "VISUALS_FILTERS"Hashed, ElementBase::Style_t{ .vec2Size = ImVec2(-0.1f, 0) });
+	std::unique_ptr<MultiSelectCombo> m_pItemFilters = std::make_unique<MultiSelectCombo>("VISUALS_ITEM_FILTERS", "VISUALS_ITEM_FILTERS"Hashed, ElementBase::Style_t{ .vec2Size = ImVec2(-0.1f, 0) });
 
 	struct ESPData
 	{
@@ -85,7 +88,7 @@ private:
 	};
 	std::vector<ESPData> m_vESPData;
 
-	enum class EnemyCategory
+	enum class EnemyCategory // This is only used for the mutliselect combo
 	{
 		None,
 		Cop,
@@ -174,37 +177,78 @@ private:
 
 		// Left arm
 		int LeftShoulder = -1;
-		int LeftUpperArm = -1;      // LeftArm
-		int LeftForeArm = -1;       // LeftForeArm
+		int LeftUpperArm = -1;
+		int LeftForeArm = -1;
 		int LeftHand = -1;
 
 		// Right arm
 		int RightShoulder = -1;
-		int RightUpperArm = -1;     // RightArm
-		int RightForeArm = -1;      // RightForeArm
+		int RightUpperArm = -1;
+		int RightForeArm = -1;
 		int RightHand = -1;
 
 		// Left leg
-		int LeftUpperLeg = -1;      // LeftUpLeg
-		int LeftLowerLeg = -1;      // LeftLeg
+		int LeftUpperLeg = -1;
+		int LeftLowerLeg = -1;
 		int LeftFoot = -1;
-		int LeftToe = -1;            // LeftToeBase
+		int LeftToe = -1;
 
 		// Right leg
-		int RightUpperLeg = -1;     // RightUpLeg
-		int RightLowerLeg = -1;     // RightLeg
+		int RightUpperLeg = -1;
+		int RightLowerLeg = -1;
 		int RightFoot = -1;
-		int RightToe = -1;           // RightToeBase
+		int RightToe = -1;
 	};
 
 	std::unordered_map<SDK::USkeletalMeshComponent*, BoneCache> m_BoneCache;
 	std::unordered_map<SDK::UClass*, EnemyType> m_ClassCache;
+
+	enum class ItemCategory // This is only used for the mutliselect combo
+	{
+		None,
+		Cash,
+		DepositBox,
+		Keycard
+	};
+
+	enum class ItemType
+	{
+		None,
+		Cash,
+		DepositBox,
+		Keycard
+	};
+
+	struct ItemLookup
+	{
+		std::string_view Keyword;
+		ItemType Type;
+	};
+
+	static constexpr ItemLookup g_ItemLookup[] =
+	{
+		{ "instantloot_money_",     ItemType::Cash },
+		{ "depositbox", 			ItemType::DepositBox },
+		{ "keycard",        		ItemType::Keycard }
+	};
+
+	struct ItemData
+	{
+		SDK::FVector2D ScreenLocation;
+		SDK::FVector WorldLocation;
+		std::string Name;
+		ItemType Type;
+	};
+	std::vector<ItemData> m_vItemData;
+
+	std::unordered_map<SDK::UClass*, ItemType> m_ItemTypeCache;
 
 public:
 	bool SetupMenu();
 	void UpdateMenuVisibility();
 	void HandleMenu();
 	void BuildBoneCache(SDK::USkeletalMeshComponent* mesh, BoneCache& cache);
+	ItemType GetItemType(SDK::AActor* actor);
 	void DrawBone(ImDrawList* pDrawList, SDK::APlayerController* pPlayerController, SDK::USkeletalMeshComponent* mesh, int parent, int child, ImU32 color);
 	void Render();
 	void Run();

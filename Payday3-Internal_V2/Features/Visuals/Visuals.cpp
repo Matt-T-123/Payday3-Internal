@@ -145,6 +145,43 @@ void Visuals::DrawBone(ImDrawList* pDrawList, SDK::APlayerController* pPlayerCon
     }
 }
 
+Visuals::ItemType Visuals::GetItemType(SDK::AActor* actor)
+{
+    auto it = m_ItemTypeCache.find(actor->Class);
+
+    if (it != m_ItemTypeCache.end())
+        return it->second;
+
+    ItemType type = ItemType::None;
+
+    for (SDK::UStruct* pStruct = actor->Class; pStruct; pStruct = static_cast<SDK::UStruct*>(pStruct->SuperStruct))
+    {
+        std::string name = pStruct->Name.ToString();
+
+        std::transform(name.begin(), name.end(), name.begin(),
+            [](unsigned char c)
+            {
+                return (char)std::tolower(c);
+            });
+
+        for (const auto& entry : g_ItemLookup)
+        {
+            if (name.find(entry.Keyword) != std::string::npos)
+            {
+                type = entry.Type;
+                break;
+            }
+        }
+
+        if (type != ItemType::None)
+            break;
+    }
+
+    m_ItemTypeCache.emplace(actor->Class, type);
+
+    return type;
+}
+
 bool Visuals::SetupMenu()
 {
     Localization::AddToLocale("ENG", std::initializer_list<std::pair<size_t, std::string>>{
@@ -179,14 +216,13 @@ bool Visuals::SetupMenu()
 
         { "VISUALS_HIGHLIGHT"Hashed, "Highlight" },
 
-        { "VISUALS_KEY_ITEM"Hashed, "Key Items" },
-        { "VISUALS_KEY_ITEM_COLOR"Hashed, "Key Items Color" },
+        { "VISUALS_ITEM"Hashed, "Items" },
+        { "VISUALS_ITEM_CASH_COLOR"Hashed, "Cash Color" },
+        { "VISUALS_ITEM_DEPOSITBOX_COLOR"Hashed, "Deposit Box Color" },
+        { "VISUALS_ITEM_KEYCARD_COLOR"Hashed, "Keycard Color" },
 
         { "VISUALS_FILTERS"Hashed, "" },
-        { "VISUALS_COP"Hashed, "Cops" },
-        { "VISUALS_CIVILIAN"Hashed, "Civilians" },
-        { "VISUALS_ITEMS"Hashed, "Items" },
-        { "VISUALS_MONEY"Hashed, "Money" }
+        { "VISUALS_ITEM_FILTERS"Hashed, "" }
     });
 
     return true;
@@ -214,14 +250,16 @@ void Visuals::UpdateMenuVisibility()
     m_pHealthBarCivilianColor->SetVisible(m_pHealthBar->GetValue() && civilianSelected);
 
     // Armor
-    m_pArmorBarColor->SetVisible(m_pArmorBar->GetValue());
+    m_pArmorBarColor->SetVisible(m_pArmorBar->GetValue() && copSelected);
 
     // Skeleton
     m_pSkeletonCopColor->SetVisible(m_pSkeleton->GetValue() && copSelected);
     m_pSkeletonCivilianColor->SetVisible(m_pSkeleton->GetValue() && civilianSelected);
 
     // Key Items
-    m_pKeyItemColor->SetVisible(m_pKeyItem->GetValue());
+    m_pItemCashColor->SetVisible(m_pItem->GetValue());
+    m_pItemDepositBoxColor->SetVisible(m_pItem->GetValue());
+    m_pItemKeycardColor->SetVisible(m_pItem->GetValue());
 }
 
 void Visuals::HandleMenu()
@@ -279,9 +317,13 @@ void Visuals::HandleMenu()
 
         m_pTab1Left->AddElement(m_pHighlight.get());
 
-        m_pTab1Left->AddElement(m_pKeyItem.get());
-        m_pTab1Right->AddElement(m_pKeyItemColor.get());
-        m_pKeyItemColor->SetValue(ImVec4(0.0f, 1.0f, 1.0f, 1.0f));
+        m_pTab1Left->AddElement(m_pItem.get());
+        m_pTab1Right->AddElement(m_pItemCashColor.get());
+        m_pTab1Right->AddElement(m_pItemDepositBoxColor.get());
+        m_pTab1Right->AddElement(m_pItemKeycardColor.get());
+        m_pItemCashColor->SetValue(ImVec4(0.0f, 1.0f, 1.0f, 1.0f));
+        m_pItemDepositBoxColor->SetValue(ImVec4(1.0f, 0.0f, 0.0f, 1.0f));
+        m_pItemKeycardColor->SetValue(ImVec4(0.0f, 0.0f, 1.0f, 1.0f));
 
         // Filters
         m_pFilters->AddOption("COP", [](bool bEnabled) {
@@ -290,14 +332,20 @@ void Visuals::HandleMenu()
         m_pFilters->AddOption("CIVILIAN", [](bool bEnabled) {
             //Utils::LogDebug("Civilians selected");
         });
-        m_pFilters->AddOption("ITEMS", [](bool bEnabled) {
-            //Utils::LogDebug("Items selected");
+
+        // Item Filters
+        m_pItemFilters->AddOption("CASH", [](bool bEnabled) {
+            //Utils::LogDebug("CASH selected");
         });
-        m_pFilters->AddOption("MONEY", [](bool bEnabled) {
-            //Utils::LogDebug("Money selected");
+        m_pItemFilters->AddOption("DEPOSIT BOX", [](bool bEnabled) {
+            //Utils::LogDebug("DEPOSIT BOX selected");
+        });
+        m_pItemFilters->AddOption("KEYCARDS", [](bool bEnabled) {
+            //Utils::LogDebug("KEYCARDS selected");
         });
 
         m_pTab1Bottom->AddElement(m_pFilters.get());
+        m_pTab1Bottom->AddElement(m_pItemFilters.get());
 
         m_pTab1Group->AddElement(m_pTab1Left.get());
         m_pTab1Group->AddElement(m_pTab1Right.get());
@@ -323,6 +371,7 @@ void Visuals::Render()
     const bool drawArmorBar = m_pArmorBar->GetValue();
     const bool drawSkeleton = m_pSkeleton->GetValue();
     const bool drawHighlight = m_pHighlight->GetValue();
+    const bool drawItems = m_pItem->GetValue();
 
     const ImU32 boxCopColor = ImGui::ColorConvertFloat4ToU32(m_pBoundingBoxCopColor->GetValue());
     const ImU32 boxCivilianColor = ImGui::ColorConvertFloat4ToU32(m_pBoundingBoxCivilianColor->GetValue());
@@ -341,11 +390,18 @@ void Visuals::Render()
     const ImU32 skeletonCopColor = ImGui::ColorConvertFloat4ToU32(m_pSkeletonCopColor->GetValue());
     const ImU32 skeletonCivilianColor = ImGui::ColorConvertFloat4ToU32(m_pSkeletonCivilianColor->GetValue());
 
+    const ImU32 itemCashColor = ImGui::ColorConvertFloat4ToU32(m_pItemCashColor->GetValue());
+    const ImU32 itemDepositBoxColor = ImGui::ColorConvertFloat4ToU32(m_pItemDepositBoxColor->GetValue());
+    const ImU32 itemKeycardColor = ImGui::ColorConvertFloat4ToU32(m_pItemKeycardColor->GetValue());
+
     // Clear or else it'll look like you got concussed with a cod nade. Trust me...
     m_vESPData.clear();
     m_vESPData.reserve(256); // Reserving space for 256 objects to avoid frequent reallocations, but may need to increase in the future if more objects are present than expected.
 
-    if (!drawBox && !drawName && !drawDistance && !drawHealthBar && !drawArmorBar && !drawSkeleton && !drawHighlight)
+    m_vItemData.clear();
+    //m_vItemData.reserve(256);
+
+    if (!drawBox && !drawName && !drawDistance && !drawHealthBar && !drawArmorBar && !drawSkeleton && !drawHighlight && !drawItems)
         return;
 
     SDK::UWorld* pGWorld = SDK::UWorld::GetWorld();
@@ -374,10 +430,14 @@ void Visuals::Render()
     // Get filter states
     bool bShowCops = m_pFilters->IsSelected(0);
     bool bShowCivilians = m_pFilters->IsSelected(1);
-    bool bShowItems = m_pFilters->IsSelected(2);
-    bool bShowMoney = m_pFilters->IsSelected(3);
+
+    // Get key item filter states
+    bool bShowCash = m_pItemFilters->IsSelected(0);
+    bool bShowDepositBox = m_pItemFilters->IsSelected(1);
+    bool bShowKeycards = m_pItemFilters->IsSelected(2);
 
     UC::TArray<SDK::UObject*>& actors = pWorldRuntime->AllPawns->Objects;
+    UC::TArray<SDK::ULevel*> vecLevels = pGWorld->Levels;
     
     for (int i = 0; i < actors.Num(); ++i) {
         if (!actors.IsValidIndex(i))
@@ -502,23 +562,55 @@ void Visuals::Render()
         });
     }
 
-    if (m_vESPData.empty())
+    for (SDK::ULevel *pLevel : vecLevels)
+    {
+        if (!pLevel || !pLevel->Actors)
+            continue;
+
+        for (SDK::AActor* pActor : pLevel->Actors)
+        {
+            if (!pActor)
+                continue;
+
+            ItemType type = GetItemType(pActor); //Yes it's laggy at the start, it's supposed to be that way. 
+                                                 //Caching as things are discovered gives lag spikes so instead I'm just caching everything at the start to have one big lag spike instead of multiple ones.
+
+            if (type == ItemType::None)
+                continue;
+
+            if (!((type == ItemType::Cash && bShowCash) || (type == ItemType::DepositBox && bShowDepositBox) || (type == ItemType::Keycard && bShowKeycards)))
+                continue;
+
+            SDK::FVector ActorLocation = pActor->K2_GetActorLocation();
+
+            SDK::FVector2D ScreenLocation;
+
+            m_vItemData.push_back({
+                ScreenLocation,
+                ActorLocation,
+                std::string(pActor->GetName()),
+                type
+            });
+        }
+    }
+
+    if (m_vESPData.empty() && m_vItemData.empty())
         return;
 
     ImDrawList* pDrawList = ImGui::GetBackgroundDrawList();
     if (!pDrawList)
         return;
 
-    for (const auto& esp : m_vESPData)
+    for (const auto& entity : m_vESPData)
     {
         // Bounding box
         if (drawBox)
         {
-            const ImU32 color = esp.IsCop ? boxCopColor : boxCivilianColor;
+            const ImU32 color = entity.IsCop ? boxCopColor : boxCivilianColor;
 
             pDrawList->AddRect(
-                ImVec2(esp.Box.x - 1.0f, esp.Box.y - 1.0f),
-                ImVec2(esp.Box.z + 1.0f, esp.Box.w + 1.0f),
+                ImVec2(entity.Box.x - 1.0f, entity.Box.y - 1.0f),
+                ImVec2(entity.Box.z + 1.0f, entity.Box.w + 1.0f),
                 IM_COL32(0, 0, 0, 255),
                 0.0f,
                 0,
@@ -526,8 +618,8 @@ void Visuals::Render()
             );
 
             pDrawList->AddRect(
-                ImVec2(esp.Box.x, esp.Box.y),
-                ImVec2(esp.Box.z, esp.Box.w),
+                ImVec2(entity.Box.x, entity.Box.y),
+                ImVec2(entity.Box.z, entity.Box.w),
                 color,
                 0.0f,
                 0,
@@ -542,7 +634,7 @@ void Visuals::Render()
 
             if (drawName)
             {
-                const char* name = esp.Name.c_str();
+                const char* name = entity.Name.c_str();
                 if (name && name[0])
                 {
                     // Validate the string
@@ -576,10 +668,10 @@ void Visuals::Render()
 
             if (drawDistance)
             {
-                if (esp.Distance >= 0 && esp.Distance < 10000)
+                if (entity.Distance >= 0 && entity.Distance < 10000)
                 {
                     char distanceBuffer[32];
-                    snprintf(distanceBuffer, sizeof(distanceBuffer), "[%.0fm]", esp.Distance);
+                    snprintf(distanceBuffer, sizeof(distanceBuffer), "[%.0fm]", entity.Distance);
                     distanceText = distanceBuffer;
                 }
                 else
@@ -605,15 +697,15 @@ void Visuals::Render()
                 totalWidth += ImGui::CalcTextSize(" ").x;
             totalWidth += distanceSize.x;
 
-            float boxWidth = esp.Box.z - esp.Box.x;
-            float boxHeight = esp.Box.w - esp.Box.y;
+            float boxWidth = entity.Box.z - entity.Box.x;
+            float boxHeight = entity.Box.w - entity.Box.y;
 
             if (boxWidth <= 0 || boxHeight <= 0)
                 continue;
 
             ImVec2 textPos(
-                (boxWidth - totalWidth) / 2.f + esp.Box.x,
-                esp.Box.y - nameSize.y - 4.f
+                (boxWidth - totalWidth) / 2.f + entity.Box.x,
+                entity.Box.y - nameSize.y - 4.f
             );
 
             if (!std::isfinite(textPos.x) || !std::isfinite(textPos.y))
@@ -622,7 +714,7 @@ void Visuals::Render()
             // Name
             if (!nameText.empty())
             {
-                const ImU32 color = esp.IsCop ? nameCopColor : nameCivilianColor;
+                const ImU32 color = entity.IsCop ? nameCopColor : nameCivilianColor;
 
                 pDrawList->AddText(ImVec2(textPos.x - 1, textPos.y - 1), IM_COL32(0, 0, 0, 255), nameText.c_str());
 
@@ -637,7 +729,7 @@ void Visuals::Render()
             // Distance
             if (!distanceText.empty())
             {
-                const ImU32 color = esp.IsCop ? distanceCopColor : distanceCivilianColor;
+                const ImU32 color = entity.IsCop ? distanceCopColor : distanceCivilianColor;
 
                 pDrawList->AddText(ImVec2(textPos.x - 1, textPos.y - 1), IM_COL32(0, 0, 0, 255), distanceText.c_str());
 
@@ -648,26 +740,26 @@ void Visuals::Render()
         if(drawHealthBar)
         {
             const float barWidth = 4.0f;
-            const float barHeight = esp.Box.w - esp.Box.y;
+            const float barHeight = entity.Box.w - entity.Box.y;
 
             if (barHeight > 0)
             {
-                float healthPercent = esp.HealthMax > 0 ? esp.Health / esp.HealthMax : 0.0f;
+                float healthPercent = entity.HealthMax > 0 ? entity.Health / entity.HealthMax : 0.0f;
 
                 float healthBarHeight = barHeight * healthPercent;
 
-                const ImU32 healthColor = esp.IsCop ? healthBarCopColor : healthBarCivilianColor;
+                const ImU32 healthColor = entity.IsCop ? healthBarCopColor : healthBarCivilianColor;
 
                 pDrawList->AddRectFilled(
-                    ImVec2(esp.Box.x - barWidth - 3, esp.Box.w - barHeight),
-                    ImVec2(esp.Box.x - 1, esp.Box.w),
+                    ImVec2(entity.Box.x - barWidth - 3, entity.Box.w - barHeight),
+                    ImVec2(entity.Box.x - 1, entity.Box.w),
                     IM_COL32(0, 0, 0, 255)
                 );
 
                 // Draw health bar
                 pDrawList->AddRectFilled(
-                    ImVec2(esp.Box.x - barWidth - 2, esp.Box.w - healthBarHeight),
-                    ImVec2(esp.Box.x - 2, esp.Box.w),
+                    ImVec2(entity.Box.x - barWidth - 2, entity.Box.w - healthBarHeight),
+                    ImVec2(entity.Box.x - 2, entity.Box.w),
                     healthColor
                 );
             }
@@ -676,24 +768,24 @@ void Visuals::Render()
         if(drawArmorBar)
         {
             const float barWidth = 4.0f;
-            const float barHeight = esp.Box.w - esp.Box.y;
+            const float barHeight = entity.Box.w - entity.Box.y;
 
             if (barHeight > 0)
             {
-                float armorPercent = esp.ArmorMax > 0 ? esp.Armor / esp.ArmorMax : 0.0f;
+                float armorPercent = entity.ArmorMax > 0 ? entity.Armor / entity.ArmorMax : 0.0f;
 
                 float armorBarHeight = barHeight * armorPercent;
 
                 pDrawList->AddRectFilled(
-                    ImVec2(esp.Box.x - barWidth * 2 - 5, esp.Box.w - armorBarHeight),
-                    ImVec2(esp.Box.x - barWidth - 3, esp.Box.w),
+                    ImVec2(entity.Box.x - barWidth * 2 - 5, entity.Box.w - armorBarHeight),
+                    ImVec2(entity.Box.x - barWidth - 3, entity.Box.w),
                     IM_COL32(0, 0, 0, 255)
                 );
 
                 // Draw armor bar
                 pDrawList->AddRectFilled(
-                    ImVec2(esp.Box.x - barWidth * 2 - 4, esp.Box.w - armorBarHeight),
-                    ImVec2(esp.Box.x - barWidth - 4, esp.Box.w),
+                    ImVec2(entity.Box.x - barWidth * 2 - 4, entity.Box.w - armorBarHeight),
+                    ImVec2(entity.Box.x - barWidth - 4, entity.Box.w),
                     armorBarColor
                 );
             }
@@ -702,142 +794,77 @@ void Visuals::Render()
         // Yes it looks ugly, too bad. Dynamically obtaining & drawing the skeleton is a performance hit, manual is better.
         if(drawSkeleton) 
         {
-            BoneCache& cache = m_BoneCache[esp.Mesh];
-            ImU32 color = esp.IsCop ? skeletonCopColor : skeletonCivilianColor;
+            BoneCache& cache = m_BoneCache[entity.Mesh];
+            ImU32 color = entity.IsCop ? skeletonCopColor : skeletonCivilianColor;
 
             if (!cache.Initialized)
             {
-                BuildBoneCache(esp.Mesh, cache);
+                BuildBoneCache(entity.Mesh, cache);
             }
             // Spine
-            DrawBone(pDrawList, pPlayerController, esp.Mesh, cache.Head, cache.Neck, color);
-            DrawBone(pDrawList, pPlayerController, esp.Mesh, cache.Neck, cache.Spine3, color);
-            DrawBone(pDrawList, pPlayerController, esp.Mesh, cache.Spine3, cache.Hips, color);
+            DrawBone(pDrawList, pPlayerController, entity.Mesh, cache.Head, cache.Neck, color);
+            DrawBone(pDrawList, pPlayerController, entity.Mesh, cache.Neck, cache.Spine3, color);
+            DrawBone(pDrawList, pPlayerController, entity.Mesh, cache.Spine3, cache.Hips, color);
 
             // Left arm
-            DrawBone(pDrawList, pPlayerController, esp.Mesh, cache.Spine3, cache.LeftShoulder, color);
-            DrawBone(pDrawList, pPlayerController, esp.Mesh, cache.LeftShoulder, cache.LeftUpperArm, color);
-            DrawBone(pDrawList, pPlayerController, esp.Mesh, cache.LeftUpperArm, cache.LeftForeArm, color);
-            DrawBone(pDrawList, pPlayerController, esp.Mesh, cache.LeftForeArm, cache.LeftHand, color);
+            DrawBone(pDrawList, pPlayerController, entity.Mesh, cache.Spine3, cache.LeftShoulder, color);
+            DrawBone(pDrawList, pPlayerController, entity.Mesh, cache.LeftShoulder, cache.LeftUpperArm, color);
+            DrawBone(pDrawList, pPlayerController, entity.Mesh, cache.LeftUpperArm, cache.LeftForeArm, color);
+            DrawBone(pDrawList, pPlayerController, entity.Mesh, cache.LeftForeArm, cache.LeftHand, color);
 
             // Right arm
-            DrawBone(pDrawList, pPlayerController, esp.Mesh, cache.Spine3, cache.RightShoulder, color);
-            DrawBone(pDrawList, pPlayerController, esp.Mesh, cache.RightShoulder, cache.RightUpperArm, color);
-            DrawBone(pDrawList, pPlayerController, esp.Mesh, cache.RightUpperArm, cache.RightForeArm, color);
-            DrawBone(pDrawList, pPlayerController, esp.Mesh, cache.RightForeArm, cache.RightHand, color);
+            DrawBone(pDrawList, pPlayerController, entity.Mesh, cache.Spine3, cache.RightShoulder, color);
+            DrawBone(pDrawList, pPlayerController, entity.Mesh, cache.RightShoulder, cache.RightUpperArm, color);
+            DrawBone(pDrawList, pPlayerController, entity.Mesh, cache.RightUpperArm, cache.RightForeArm, color);
+            DrawBone(pDrawList, pPlayerController, entity.Mesh, cache.RightForeArm, cache.RightHand, color);
 
             // Left leg
-            DrawBone(pDrawList, pPlayerController, esp.Mesh, cache.Hips, cache.LeftUpperLeg, color);
-            DrawBone(pDrawList, pPlayerController, esp.Mesh, cache.LeftUpperLeg, cache.LeftLowerLeg, color);
-            DrawBone(pDrawList, pPlayerController, esp.Mesh, cache.LeftLowerLeg, cache.LeftFoot, color);
-            DrawBone(pDrawList, pPlayerController, esp.Mesh, cache.LeftFoot, cache.LeftToe, color);
+            DrawBone(pDrawList, pPlayerController, entity.Mesh, cache.Hips, cache.LeftUpperLeg, color);
+            DrawBone(pDrawList, pPlayerController, entity.Mesh, cache.LeftUpperLeg, cache.LeftLowerLeg, color);
+            DrawBone(pDrawList, pPlayerController, entity.Mesh, cache.LeftLowerLeg, cache.LeftFoot, color);
+            DrawBone(pDrawList, pPlayerController, entity.Mesh, cache.LeftFoot, cache.LeftToe, color);
 
             // Right leg
-            DrawBone(pDrawList, pPlayerController, esp.Mesh, cache.Hips, cache.RightUpperLeg, color);
-            DrawBone(pDrawList, pPlayerController, esp.Mesh, cache.RightUpperLeg, cache.RightLowerLeg, color);
-            DrawBone(pDrawList, pPlayerController, esp.Mesh, cache.RightLowerLeg, cache.RightFoot, color);
-            DrawBone(pDrawList, pPlayerController, esp.Mesh, cache.RightFoot, cache.RightToe, color);
+            DrawBone(pDrawList, pPlayerController, entity.Mesh, cache.Hips, cache.RightUpperLeg, color);
+            DrawBone(pDrawList, pPlayerController, entity.Mesh, cache.RightUpperLeg, cache.RightLowerLeg, color);
+            DrawBone(pDrawList, pPlayerController, entity.Mesh, cache.RightLowerLeg, cache.RightFoot, color);
+            DrawBone(pDrawList, pPlayerController, entity.Mesh, cache.RightFoot, cache.RightToe, color);
         }
 
         if(drawHighlight) //Anyone know a good way to disable this shit ? Setting it false doesn't even disable it.
         {
-            esp.Character->Multicast_SetMarked(true);
+            entity.Character->Multicast_SetMarked(true);
+        }
+    }
+
+    for (auto& item : m_vItemData)
+    {
+        if (drawItems)
+        {
+            if (!pPlayerController->ProjectWorldLocationToScreen(item.WorldLocation, &item.ScreenLocation, false))
+                    continue;
+                    
+            ImVec2 vecTextSize = ImGui::CalcTextSize(item.Name.c_str());
+
+            ImU32 itemColor = ItemType::Cash == item.Type ? itemCashColor :
+                              ItemType::DepositBox == item.Type ? itemDepositBoxColor :
+                              ItemType::Keycard == item.Type ? itemKeycardColor : IM_COL32(255, 255, 255, 255);
+
+            pDrawList->AddText(
+                ImVec2(item.ScreenLocation.X - vecTextSize.x / 2 - 1, item.ScreenLocation.Y - vecTextSize.y / 2 - 1),
+                IM_COL32(0, 0, 0, 255),
+                item.Name.c_str()
+            );
+
+            pDrawList->AddText(
+                ImVec2(item.ScreenLocation.X - vecTextSize.x / 2, item.ScreenLocation.Y - vecTextSize.y / 2),
+                itemColor,
+                item.Name.c_str()
+            );
         }
     }
 }
 
 void Visuals::Run()
 {
-    // // ----- ITEMS & LOOT ESP -----
-    // if (bShowItems || bShowMoney) {
-    //     UC::TArray<SDK::ULevel*> vecLevels = pGWorld->Levels;
-    //     for (SDK::ULevel* pLevel : vecLevels) {
-    //         if (!pLevel || !pLevel->Actors)
-    //             continue;
-
-    //         for (SDK::AActor* pActor : pLevel->Actors) {
-    //             if (!pActor)
-    //                 continue;
-
-    //             std::string className = pActor->Class->Name.ToString();
-                
-    //             // Check for money/loot
-    //             bool bIsMoney = className.find("BP_BaseValuableBag") != std::string::npos;
-                
-    //             // Check for key items
-    //             bool bIsKeyItem = false;
-    //             std::string sItemName = "";
-                
-    //             if (className.find("BP_Keycard") != std::string::npos ||
-    //                 className.find("BP_RFID") != std::string::npos ||
-    //                 className.find("BP_QRPhone") != std::string::npos ||
-    //                 className.find("BP_FOR_USBDrive") != std::string::npos) {
-    //                 bIsKeyItem = true;
-                    
-    //                 if (className.find("Keycard") != std::string::npos)
-    //                     sItemName = "Keycard";
-    //                 else if (className.find("RFID") != std::string::npos)
-    //                     sItemName = "RFID Tag";
-    //                 else if (className.find("QRPhone") != std::string::npos)
-    //                     sItemName = "Phone";
-    //                 else if (className.find("USBDrive") != std::string::npos)
-    //                     sItemName = "USB Drive";
-    //                 else
-    //                     sItemName = "Item";
-    //             }
-
-    //             if (!bIsMoney && !bIsKeyItem)
-    //                 continue;
-
-    //             // Apply filters
-    //             if (bIsMoney && !bShowMoney)
-    //                 continue;
-    //             if (!bIsMoney && !bShowItems)
-    //                 continue;
-
-    //             SDK::FVector2D vec2ScreenLocation;
-    //             if (!pPlayerController->ProjectWorldLocationToScreen(
-    //                 pActor->K2_GetActorLocation(), &vec2ScreenLocation, false))
-    //                 continue;
-
-    //             // Draw item
-    //             if (bIsMoney) {
-    //                 pDrawList->AddText(
-    //                     ImVec2(vec2ScreenLocation.X - 10, vec2ScreenLocation.Y - 10),
-    //                     IM_COL32(255, 215, 0, 255),
-    //                     "$"
-    //                 );
-    //             } else if (bIsKeyItem && m_pKeyItem->GetValue()) {
-    //                 ImU32 colorU32 = IM_COL32(
-    //                     (int)(m_pKeyItemColor->GetValue().x * 255),
-    //                     (int)(m_pKeyItemColor->GetValue().y * 255),
-    //                     (int)(m_pKeyItemColor->GetValue().z * 255),
-    //                     (int)(m_pKeyItemColor->GetValue().w * 255)
-    //                 );
-                    
-    //                 // Draw glow
-    //                 for (int i = 3; i > 0; i--) {
-    //                     pDrawList->AddCircle(
-    //                         ImVec2(vec2ScreenLocation.X, vec2ScreenLocation.Y),
-    //                         15.0f + (i * 3.0f),
-    //                         IM_COL32(
-    //                             (int)(m_pKeyItemColor->GetValue().x * 255),
-    //                             (int)(m_pKeyItemColor->GetValue().y * 255),
-    //                             (int)(m_pKeyItemColor->GetValue().z * 255),
-    //                             (int)(m_pKeyItemColor->GetValue().w * 50 * i / 3)
-    //                         ),
-    //                         12,
-    //                         1.0f
-    //                     );
-    //                 }
-                    
-    //                 pDrawList->AddText(
-    //                     ImVec2(vec2ScreenLocation.X - 20, vec2ScreenLocation.Y + 20),
-    //                     colorU32,
-    //                     sItemName.c_str()
-    //                 );
-    //             }
-    //         }
-    //     }
-    // }
 }

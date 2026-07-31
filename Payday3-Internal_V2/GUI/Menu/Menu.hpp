@@ -689,6 +689,7 @@ public:
 			}
 
 			drawList->AddText(pos + ImVec2(SideBarWidth + style.FramePadding.x, size.y - FooterHeight + style.FramePadding.y), ImGui::GetColorU32(ImGuiCol_TextDisabled), "Payday 3 Internal v2");
+			drawList->AddText(pos + ImVec2(size.x - ImGui::CalcTextSize("BETA").x - style.FramePadding.x, style.FramePadding.y), ImGui::GetColorU32(ImVec4(1.f, 0.f, 0.f, 1.f)), "BETA");
 			drawList->AddText(pos + ImVec2(size.x - ImGui::CalcTextSize((std::string("v") + STR(FRAMEWORK_VERSION)).c_str()).x - style.FramePadding.x, size.y - FooterHeight + style.FramePadding.y), ImGui::GetColorU32(ImGuiCol_SliderGrab), (std::string("v") + STR(FRAMEWORK_VERSION)).c_str());
 		}
 		RenderChildren();
@@ -1073,6 +1074,8 @@ public:
 
 		SameLine();
 
+		ImGui::PushID(m_sUnique.c_str());
+
 		if (ImAdd::BeginCombo(GetName().c_str(), m_sPreviewlabel.c_str(), m_stStyle.iFlags))
 		{
 			if (m_Callback)
@@ -1085,10 +1088,12 @@ public:
 				{
 					bool bSelected = m_Options[i].bSelected;
 
+					ImGui::PushID(static_cast<int>(i));
+
 					if (ImAdd::Selectable(
-						m_Options[i].sLabel.c_str(),
-						bSelected,
-						ImVec2(0, 0)))
+							m_Options[i].sLabel.c_str(),
+							bSelected,
+							ImVec2(0, 0)))
 					{
 						m_Options[i].bSelected = !m_Options[i].bSelected;
 
@@ -1097,14 +1102,18 @@ public:
 						if (m_Options[i].Callback)
 							m_Options[i].Callback(m_Options[i].bSelected);
 					}
+
+					ImGui::PopID();
 				}
 			}
 
 			ImGui::EndCombo();
 		}
 
+		ImGui::PopID();
+
 		RenderChildren();
-	};
+	}
 
 	void SetCallback(std::function<void()> Callback)
 	{

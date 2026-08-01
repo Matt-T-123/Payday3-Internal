@@ -1,5 +1,6 @@
 #pragma once
 #include "pch.h"
+#include "VisualsTypes.hpp"
 
 class Visuals : public BaseFeature
 {
@@ -72,184 +73,58 @@ private:
 	std::unique_ptr<MultiSelectCombo> m_pFilters = std::make_unique<MultiSelectCombo>("VISUALS_FILTERS", "VISUALS_FILTERS"Hashed, ElementBase::Style_t{ .vec2Size = ImVec2(-0.1f, 0) });
 	std::unique_ptr<MultiSelectCombo> m_pItemFilters = std::make_unique<MultiSelectCombo>("VISUALS_ITEM_FILTERS", "VISUALS_ITEM_FILTERS"Hashed, ElementBase::Style_t{ .vec2Size = ImVec2(-0.1f, 0) });
 
-	struct ESPData
-	{
-		ImVec4 Box;
-		std::string Name;
-		SDK::USkeletalMeshComponent* Mesh;
-		SDK::ASBZCharacter* Character;
-		float Health;
-		float HealthMax;
-		float Armor;
-		float ArmorMax;
-		float Distance;
-		bool IsCop;
-		bool IsCivilian;
-	};
-	std::vector<ESPData> m_vESPData;
+	std::vector<VisualsTypes::ESPData> m_vESPData;
+	std::unordered_map<SDK::USkeletalMeshComponent*, VisualsTypes::BoneCache> m_BoneCache;
+	std::unordered_map<SDK::UClass*, VisualsTypes::EnemyType> m_ClassCache;
+	std::vector<VisualsTypes::ItemData> m_vItemData;
+	std::unordered_map<SDK::UClass*, VisualsTypes::ItemType> m_ItemTypeCache;
 
-	enum class EnemyCategory // This is only used for the mutliselect combo
+	struct FrameSettings
 	{
-		None,
-		Cop,
-		Civilian
-	};
-
-	struct EnemyInfo
-	{
-		const char* Name;
-		EnemyCategory Category;
+		bool DrawBox = false;
+		bool DrawName = false;
+		bool DrawDistance = false;
+		bool DrawHealthBar = false;
+		bool DrawArmorBar = false;
+		bool DrawSkeleton = false;
+		bool DrawHighlight = false;
+		bool DrawItems = false;
+		bool ShowCops = false;
+		bool ShowCivilians = false;
+		bool ShowCash = false;
+		bool ShowDepositBox = false;
+		bool ShowKeycards = false;
 	};
 
-	enum class EnemyType // The order between this and g_EnemyInfo must match
+	struct FrameColors
 	{
-		None,
-		Security,
-		ArmedCop,
-		Shield,
-		Dozer,
-		Cloaker,
-		Sniper,
-		Taser,
-		Tower,
-		Shotgun,
-		AR,
-		SMG,
-		Grenadier,
-		Civilian,
-		SentryGun
+		ImU32 BoxCopColor = 0;
+		ImU32 BoxCivilianColor = 0;
+		ImU32 NameCopColor = 0;
+		ImU32 NameCivilianColor = 0;
+		ImU32 DistanceCopColor = 0;
+		ImU32 DistanceCivilianColor = 0;
+		ImU32 HealthBarCopColor = 0;
+		ImU32 HealthBarCivilianColor = 0;
+		ImU32 ArmorBarColor = 0;
+		ImU32 SkeletonCopColor = 0;
+		ImU32 SkeletonCivilianColor = 0;
+		ImU32 ItemCashColor = 0;
+		ImU32 ItemDepositBoxColor = 0;
+		ImU32 ItemKeycardColor = 0;
 	};
 
-	struct EnemyLookup
-	{
-		std::string_view Keyword;
-		EnemyType Type;
-	};
-
-	static constexpr EnemyLookup g_EnemyLookup[] =
-	{
-		{ "security",   EnemyType::Security },
-		{ "armedcop",   EnemyType::ArmedCop },
-		{ "shield",     EnemyType::Shield },
-		{ "dozer",      EnemyType::Dozer },
-		{ "cloaker",    EnemyType::Cloaker },
-		{ "sniper",     EnemyType::Sniper },
-		{ "taser",      EnemyType::Taser },
-		{ "tower",      EnemyType::Tower },
-		{ "shotgun",    EnemyType::Shotgun },
-		{ "grenadier",  EnemyType::Grenadier },
-		{ "civilian",   EnemyType::Civilian },
-		{ "smg",        EnemyType::SMG },
-		{ "ar",         EnemyType::AR }
-	};
-
-	static constexpr EnemyInfo g_EnemyInfo[] =
-	{
-		{ "Unknown",    EnemyCategory::None },
-		{ "Security",   EnemyCategory::Cop },
-		{ "Armed Cop",  EnemyCategory::Cop },
-		{ "Shield",     EnemyCategory::Cop },
-		{ "Dozer",      EnemyCategory::Cop },
-		{ "Cloaker",    EnemyCategory::Cop },
-		{ "Sniper",     EnemyCategory::Cop },
-		{ "Taser",      EnemyCategory::Cop },
-		{ "Tower",      EnemyCategory::Cop },
-		{ "Shotgun",    EnemyCategory::Cop },
-		{ "AR",         EnemyCategory::Cop },
-		{ "SMG",        EnemyCategory::Cop },
-		{ "Grenadier",  EnemyCategory::Cop },
-		{ "Civilian",   EnemyCategory::Civilian },
-		{ "Sentry Gun", EnemyCategory::Cop }
-	};
-
-	struct BoneCache
-	{
-		bool Initialized = false;
-
-		// Core body
-		int Hips = -1;
-		int Spine = -1;
-		int Spine1 = -1;
-		int Spine2 = -1;
-		int Spine3 = -1;
-		int Neck = -1;
-		int Head = -1;
-
-		// Left arm
-		int LeftShoulder = -1;
-		int LeftUpperArm = -1;
-		int LeftForeArm = -1;
-		int LeftHand = -1;
-
-		// Right arm
-		int RightShoulder = -1;
-		int RightUpperArm = -1;
-		int RightForeArm = -1;
-		int RightHand = -1;
-
-		// Left leg
-		int LeftUpperLeg = -1;
-		int LeftLowerLeg = -1;
-		int LeftFoot = -1;
-		int LeftToe = -1;
-
-		// Right leg
-		int RightUpperLeg = -1;
-		int RightLowerLeg = -1;
-		int RightFoot = -1;
-		int RightToe = -1;
-	};
-
-	std::unordered_map<SDK::USkeletalMeshComponent*, BoneCache> m_BoneCache;
-	std::unordered_map<SDK::UClass*, EnemyType> m_ClassCache;
-
-	enum class ItemCategory // This is only used for the mutliselect combo
-	{
-		None,
-		Cash,
-		DepositBox,
-		Keycard
-	};
-
-	enum class ItemType
-	{
-		None,
-		Cash,
-		DepositBox,
-		Keycard
-	};
-
-	struct ItemLookup
-	{
-		std::string_view Keyword;
-		ItemType Type;
-	};
-
-	static constexpr ItemLookup g_ItemLookup[] =
-	{
-		{ "instantloot_money_",     ItemType::Cash },
-		{ "depositbox", 			ItemType::DepositBox },
-		{ "keycard",        		ItemType::Keycard }
-	};
-
-	struct ItemData
-	{
-		SDK::FVector2D ScreenLocation;
-		SDK::FVector WorldLocation;
-		std::string Name;
-		ItemType Type;
-	};
-	std::vector<ItemData> m_vItemData;
-
-	std::unordered_map<SDK::UClass*, ItemType> m_ItemTypeCache;
+private:
+	void CollectFrameData(SDK::UWorld* pGWorld, SDK::APlayerController* pPlayerController, SDK::APlayerCameraManager* pCameraManager,
+		SDK::ASBZCharacter* pLocalPlayer, const FrameSettings& settings);
+	void DrawFrame(ImDrawList* pDrawList, SDK::APlayerController* pPlayerController, const FrameSettings& settings, const FrameColors& colors);
+	VisualsTypes::ItemType GetItemType(SDK::AActor* actor);
+	VisualsTypes::EnemyType GetEnemyType(SDK::AActor* actor);
 
 public:
 	bool SetupMenu();
 	void UpdateMenuVisibility();
 	void HandleMenu();
-	void BuildBoneCache(SDK::USkeletalMeshComponent* mesh, BoneCache& cache);
-	ItemType GetItemType(SDK::AActor* actor);
-	void DrawBone(ImDrawList* pDrawList, SDK::APlayerController* pPlayerController, SDK::USkeletalMeshComponent* mesh, int parent, int child, ImU32 color);
 	void Render();
 	void Run();
 	RadioButtonIcon* GetMenuButton() const { return m_pMenuButton.get(); }

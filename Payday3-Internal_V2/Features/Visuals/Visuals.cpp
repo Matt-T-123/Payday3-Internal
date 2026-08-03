@@ -1,185 +1,143 @@
 #include "pch.h"
 #include "Visuals.hpp"
+#include "VisualsHelpers.hpp"
 #include <vector>
 #include <string>
 
 #undef min
 #undef max
 
-// Calculate screen box from top and bottom points
-std::optional<ImVec4> CalculateScreenBoxFromTopBottom(SDK::APlayerController* pPlayerController, SDK::AActor* pActor, 
-    SDK::FVector vecTop, SDK::FVector vecBottom)
+namespace
 {
-    SDK::FVector2D vec2Top, vec2Bottom;
-    if (!pPlayerController->ProjectWorldLocationToScreen(vecBottom, &vec2Bottom, false) ||
-        !pPlayerController->ProjectWorldLocationToScreen(vecTop, &vec2Top, false))
-        return {};
-
-    float flHeight = std::abs(vec2Top.Y - vec2Bottom.Y);
-    float flYawRad = pActor->K2_GetActorRotation().Yaw * (3.14159265358979323846f / 180.0f);
-    float flWidthRatio = 0.25f + (std::abs(SDK::FVector(std::cos(flYawRad), std::sin(flYawRad), 0.f).GetNormalized().Dot(
-        (pActor->K2_GetActorLocation() - pPlayerController->PlayerCameraManager->GetCameraLocation()).GetNormalized())) * 0.15f);
-    
-    float flWidth = flHeight * flWidthRatio;
-    float flCenter = (vec2Bottom.X + vec2Top.X) / 2.0f;
-    return ImVec4{ flCenter - (flWidth / 2.0f), std::min(vec2Bottom.Y, vec2Top.Y), 
-                   flCenter + (flWidth / 2.0f), std::max(vec2Bottom.Y, vec2Top.Y) };
-}
-
-// Calculate screen box for characters
-std::optional<ImVec4> CalculateScreenBoxForCharacter(SDK::USkeletalMeshComponent* pMeshComponent, 
-    SDK::APlayerController* pPlayerController, SDK::AActor* pActor)
-{
-    if (!pMeshComponent || !pPlayerController || !pActor)
-        return {};
-
-    return CalculateScreenBoxFromTopBottom(
-        pPlayerController, 
-        pActor, 
-        pMeshComponent->GetSocketLocation(SDK::UKismetStringLibrary::Conv_StringToName(L"HeadEnd")), 
-        pMeshComponent->GetSocketLocation(SDK::UKismetStringLibrary::Conv_StringToName(L"Reference"))
-    );
-}
-
-void Visuals::BuildBoneCache(SDK::USkeletalMeshComponent* mesh, BoneCache& cache)
-{
-    if (!mesh)
-        return;
-
-    const int numBones = mesh->GetNumBones();
-
-    for (int i = 0; i < numBones; ++i)
+    std::string ToLowerCopy(std::string value)
     {
-        const std::string bone = mesh->GetBoneName(i).ToString();
-
-        if (bone == "Hips")
-            cache.Hips = i;
-
-        else if (bone == "Spine")
-            cache.Spine = i;
-
-        else if (bone == "Spine1")
-            cache.Spine1 = i;
-
-        else if (bone == "Spine2")
-            cache.Spine2 = i;
-
-        else if (bone == "Spine3")
-            cache.Spine3 = i;
-
-        else if (bone == "Neck")
-            cache.Neck = i;
-
-        else if (bone == "Head")
-            cache.Head = i;
-
-        // Left arm
-        else if (bone == "LeftShoulder")
-            cache.LeftShoulder = i;
-
-        else if (bone == "LeftArm")
-            cache.LeftUpperArm = i;
-
-        else if (bone == "LeftForeArm")
-            cache.LeftForeArm = i;
-
-        else if (bone == "LeftHand")
-            cache.LeftHand = i;
-
-        // Right arm
-        else if (bone == "RightShoulder")
-            cache.RightShoulder = i;
-
-        else if (bone == "RightArm")
-            cache.RightUpperArm = i;
-
-        else if (bone == "RightForeArm")
-            cache.RightForeArm = i;
-
-        else if (bone == "RightHand")
-            cache.RightHand = i;
-
-        // Left leg
-        else if (bone == "LeftUpLeg")
-            cache.LeftUpperLeg = i;
-
-        else if (bone == "LeftLeg")
-            cache.LeftLowerLeg = i;
-
-        else if (bone == "LeftFoot")
-            cache.LeftFoot = i;
-
-        else if (bone == "LeftToeBase")
-            cache.LeftToe = i;
-
-        // Right leg
-        else if (bone == "RightUpLeg")
-            cache.RightUpperLeg = i;
-
-        else if (bone == "RightLeg")
-            cache.RightLowerLeg = i;
-
-        else if (bone == "RightFoot")
-            cache.RightFoot = i;
-
-        else if (bone == "RightToeBase")
-            cache.RightToe = i;
-    }
-
-    cache.Initialized = true;
-}
-
-void Visuals::DrawBone(ImDrawList* pDrawList, SDK::APlayerController* pPlayerController, SDK::USkeletalMeshComponent* mesh, int parent, int child, ImU32 color)
-{
-    if (parent < 0 || child < 0)
-        return;
-
-    auto parentWorld = mesh->GetSocketLocation(mesh->GetBoneName(parent));
-    auto childWorld = mesh->GetSocketLocation(mesh->GetBoneName(child));
-    SDK::FVector2D p0, p1;
-
-    if (pPlayerController->ProjectWorldLocationToScreen(parentWorld, &p0, false) && pPlayerController->ProjectWorldLocationToScreen(childWorld, &p1, false))
-    {
-        pDrawList->AddLine(ImVec2(p0.X - 1, p0.Y - 1), ImVec2(p1.X - 1, p1.Y - 1), IM_COL32(0, 0, 0, 255), 1.1f);
-        pDrawList->AddLine(ImVec2(p0.X, p0.Y), ImVec2(p1.X, p1.Y), color, 1.0f);
-    }
-}
-
-Visuals::ItemType Visuals::GetItemType(SDK::AActor* actor)
-{
-    auto it = m_ItemTypeCache.find(actor->Class);
-
-    if (it != m_ItemTypeCache.end())
-        return it->second;
-
-    ItemType type = ItemType::None;
-
-    for (SDK::UStruct* pStruct = actor->Class; pStruct; pStruct = static_cast<SDK::UStruct*>(pStruct->SuperStruct))
-    {
-        std::string name = pStruct->Name.ToString();
-
-        std::transform(name.begin(), name.end(), name.begin(),
+        std::transform(value.begin(), value.end(), value.begin(),
             [](unsigned char c)
             {
-                return (char)std::tolower(c);
+                return static_cast<char>(std::tolower(c));
             });
+        return value;
+    }
 
-        for (const auto& entry : g_ItemLookup)
+    VisualsTypes::EnemyType ResolveEnemyType(std::unordered_map<SDK::UClass*, VisualsTypes::EnemyType>& cache, SDK::AActor* actor)
+    {
+        auto it = cache.find(actor->Class);
+        if (it != cache.end())
+            return it->second;
+
+        VisualsTypes::EnemyType type = VisualsTypes::EnemyType::None;
+        std::string className = ToLowerCopy(actor->Class->Name.ToString());
+
+        for (const auto& entry : VisualsTypes::g_EnemyLookup)
         {
-            if (name.find(entry.Keyword) != std::string::npos)
+            if (className.find(entry.Keyword) != std::string::npos)
             {
                 type = entry.Type;
                 break;
             }
         }
 
-        if (type != ItemType::None)
-            break;
+        cache.try_emplace(actor->Class, type);
+        return type;
     }
 
-    m_ItemTypeCache.emplace(actor->Class, type);
+    VisualsTypes::ItemType ResolveItemType(std::unordered_map<SDK::UClass*, VisualsTypes::ItemType>& cache, SDK::AActor* actor)
+    {
+        auto it = cache.find(actor->Class);
+        if (it != cache.end())
+            return it->second;
 
-    return type;
+        VisualsTypes::ItemType type = VisualsTypes::ItemType::None;
+
+        for (SDK::UStruct* pStruct = actor->Class; pStruct; pStruct = static_cast<SDK::UStruct*>(pStruct->SuperStruct))
+        {
+            std::string name = ToLowerCopy(pStruct->Name.ToString());
+
+            for (const auto& entry : VisualsTypes::g_ItemLookup)
+            {
+                if (name.find(entry.Keyword) != std::string::npos)
+                {
+                    type = entry.Type;
+                    break;
+                }
+            }
+
+            if (type != VisualsTypes::ItemType::None)
+                break;
+        }
+
+        cache.emplace(actor->Class, type);
+        return type;
+    }
+
+    std::string FormatEntityName(const std::string& name)
+    {
+        if (name.empty())
+            return "Unknown";
+
+        const char* rawName = name.c_str();
+        size_t length = strlen(rawName);
+        if (length == 0 || length >= 256)
+            return "Unknown";
+
+        for (size_t i = 0; i < length; ++i)
+        {
+            if (rawName[i] < 32 || rawName[i] > 126)
+                return "Invalid";
+        }
+
+        return name;
+    }
+
+    std::string FormatDistanceText(float distance)
+    {
+        if (distance >= 0 && distance < 10000)
+        {
+            char buffer[32];
+            snprintf(buffer, sizeof(buffer), "[%.0fm]", distance);
+            return buffer;
+        }
+
+        return "[???m]";
+    }
+
+    bool TryReadPawnStats(SDK::ASBZCharacter* character, float& health, float& healthMax, float& armor, float& armorMax)
+    {
+        auto* abilitySystem = character->AbilitySystem;
+        if (!abilitySystem)
+            return false;
+
+        UC::TArray<SDK::UAttributeSet*>* spawnedAttrs = (UC::TArray<SDK::UAttributeSet*>*)((uintptr_t)abilitySystem + 0x0150);
+        if (!spawnedAttrs)
+            return false;
+
+        for (int i = 0; i < spawnedAttrs->Num(); ++i)
+        {
+            auto* attrSet = (*spawnedAttrs)[i];
+            if (attrSet && attrSet->IsA(SDK::USBZPawnAttributeSet::StaticClass()))
+            {
+                auto* pawnAttrs = static_cast<SDK::USBZPawnAttributeSet*>(attrSet);
+                health = pawnAttrs->Health.CurrentValue;
+                healthMax = pawnAttrs->HealthMax.CurrentValue;
+                armor = pawnAttrs->Armor.CurrentValue;
+                armorMax = pawnAttrs->ArmorMax.CurrentValue;
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+}
+
+VisualsTypes::EnemyType Visuals::GetEnemyType(SDK::AActor* actor)
+{
+    return ResolveEnemyType(m_ClassCache, actor);
+}
+
+VisualsTypes::ItemType Visuals::GetItemType(SDK::AActor* actor)
+{
+    return ResolveItemType(m_ItemTypeCache, actor);
 }
 
 bool Visuals::SetupMenu()
@@ -233,6 +191,10 @@ void Visuals::UpdateMenuVisibility()
     const bool copSelected = m_pFilters->IsSelected(0);
     const bool civilianSelected = m_pFilters->IsSelected(1);
 
+    const bool cashSelected = m_pItemFilters->IsSelected(0);
+    const bool depositBoxSelected = m_pItemFilters->IsSelected(1);
+    const bool keycardSelected = m_pItemFilters->IsSelected(2);
+
     // Bounding Box
     m_pBoundingBoxCopColor->SetVisible(m_pBoundingBox->GetValue() && copSelected);
     m_pBoundingBoxCivilianColor->SetVisible(m_pBoundingBox->GetValue() && civilianSelected);
@@ -257,9 +219,9 @@ void Visuals::UpdateMenuVisibility()
     m_pSkeletonCivilianColor->SetVisible(m_pSkeleton->GetValue() && civilianSelected);
 
     // Key Items
-    m_pItemCashColor->SetVisible(m_pItem->GetValue());
-    m_pItemDepositBoxColor->SetVisible(m_pItem->GetValue());
-    m_pItemKeycardColor->SetVisible(m_pItem->GetValue());
+    m_pItemCashColor->SetVisible(m_pItem->GetValue() && cashSelected);
+    m_pItemDepositBoxColor->SetVisible(m_pItem->GetValue() && depositBoxSelected);
+    m_pItemKeycardColor->SetVisible(m_pItem->GetValue() && keycardSelected);
 }
 
 void Visuals::HandleMenu()
@@ -358,8 +320,7 @@ void Visuals::HandleMenu()
     UpdateMenuVisibility();
 }
 
-//Before you ask, yes, this function is a fucking mess. I will clean it up another time, but for now it works so boohoo cry about it.
-//Another thing you may ask is "why is it all done in render() and not in both render() and run() ?" The answer is simple: different timings, render() runs every frame, run() runs 10 times per second. -
+//Something you may ask is "why is it all done in render() and not in both render() and run() ?" The answer is simple: different timings, render() runs every frame, run() runs 10 times per second. -
 //If we split it between the 2 then ESP gets delayed and looks god awful compared to render() which runs every frame.
 void Visuals::Render()
 {
@@ -459,45 +420,12 @@ void Visuals::Render()
         if (!pCharacter->bIsAlive)
             continue;
 
-        EnemyType type = EnemyType::None;
+        VisualsTypes::EnemyType type = GetEnemyType(pActor);
 
-        auto it = m_ClassCache.find(pActor->Class);
+        const VisualsTypes::EnemyInfo& info = VisualsTypes::g_EnemyInfo[static_cast<size_t>(type)];
 
-        if (it != m_ClassCache.end())
-        {
-            type = it->second;
-        }
-        else
-        {
-            std::string className = pActor->Class->Name.ToString();
-
-            //Utils::LogDebug("Class name:" + className);
-
-            std::transform(
-                className.begin(),
-                className.end(),
-                className.begin(),
-                [](unsigned char c)
-                {
-                    return static_cast<char>(std::tolower(c));
-                });
-
-            for (const auto& entry : g_EnemyLookup)
-            {
-                if (className.find(entry.Keyword) != std::string::npos)
-                {
-                    type = entry.Type;
-                    break;
-                }
-            }
-
-            m_ClassCache.try_emplace(pActor->Class, type);
-        }
-
-        const EnemyInfo& info = g_EnemyInfo[static_cast<size_t>(type)];
-
-        bool bIsCop       = info.Category == EnemyCategory::Cop;
-        bool bIsCivilian  = info.Category == EnemyCategory::Civilian;
+        bool bIsCop       = info.Category == VisualsTypes::EnemyCategory::Cop;
+        bool bIsCivilian  = info.Category == VisualsTypes::EnemyCategory::Civilian;
 
         const char* sName = info.Name;
 
@@ -516,7 +444,7 @@ void Visuals::Render()
             continue;
 
         // Calculate screen box
-        auto optScreenBox = CalculateScreenBoxForCharacter(pMesh, pPlayerController, pActor);
+        auto optScreenBox = VisualsHelpers::CalculateScreenBoxForCharacter(pMesh, pPlayerController, pActor);
         if (!optScreenBox.has_value())
             continue;
 
@@ -525,27 +453,11 @@ void Visuals::Render()
         // Calculate distance
         float flDistance = (pActor->K2_GetActorLocation() - vecCameraLocation).Magnitude() / 100.0f;
 
-        auto* AbilitySystem = pCharacter->AbilitySystem; // offset 0x0A48
-        if (!AbilitySystem) return;
-
-        float flHealth;
-        float flHealthMax;
-        float flArmor;
-        float flArmorMax;
-
-        // Iterate SpawnedAttributes (TArray at 0x0150)
-        UC::TArray<SDK::UAttributeSet*>* spawnedAttrs = (UC::TArray<SDK::UAttributeSet*>*)((uintptr_t)AbilitySystem + 0x0150);
-        for (int i = 0; i < spawnedAttrs->Num(); i++) {
-            auto* attrSet = (*spawnedAttrs)[i];
-            if (attrSet && attrSet->IsA(SDK::USBZPawnAttributeSet::StaticClass())) {
-                auto* pawnAttrs = static_cast<SDK::USBZPawnAttributeSet*>(attrSet);
-                flHealth = pawnAttrs->Health.CurrentValue;   // 0x0090 + 0x0C
-                flHealthMax = pawnAttrs->HealthMax.CurrentValue; // 0x00A0 + 0x0C
-                flArmor = pawnAttrs->Armor.CurrentValue;     // 0x00B0 + 0x0C
-                flArmorMax = pawnAttrs->ArmorMax.CurrentValue; // 0x00C0 + 0x0C
-                break;
-            }
-        }
+        float flHealth = 0.0f;
+        float flHealthMax = 0.0f;
+        float flArmor = 0.0f;
+        float flArmorMax = 0.0f;
+        TryReadPawnStats(pCharacter, flHealth, flHealthMax, flArmor, flArmorMax);
 
         m_vESPData.push_back({
             vec4ScreenBox,
@@ -572,13 +484,13 @@ void Visuals::Render()
             if (!pActor)
                 continue;
 
-            ItemType type = GetItemType(pActor); //Yes it's laggy at the start, it's supposed to be that way. 
+            VisualsTypes::ItemType type = GetItemType(pActor); //Yes it's laggy at the start, it's supposed to be that way. 
                                                  //Caching as things are discovered gives lag spikes so instead I'm just caching everything at the start to have one big lag spike instead of multiple ones.
 
-            if (type == ItemType::None)
+            if (type == VisualsTypes::ItemType::None)
                 continue;
 
-            if (!((type == ItemType::Cash && bShowCash) || (type == ItemType::DepositBox && bShowDepositBox) || (type == ItemType::Keycard && bShowKeycards)))
+            if (!((type == VisualsTypes::ItemType::Cash && bShowCash) || (type == VisualsTypes::ItemType::DepositBox && bShowDepositBox) || (type == VisualsTypes::ItemType::Keycard && bShowKeycards)))
                 continue;
 
             SDK::FVector ActorLocation = pActor->K2_GetActorLocation();
@@ -637,47 +549,17 @@ void Visuals::Render()
                 const char* name = entity.Name.c_str();
                 if (name && name[0])
                 {
-                    // Validate the string
-                    bool valid = true;
-                    size_t len = strlen(name);
-                    if (len > 0 && len < 256)
-                    {
-                        for (size_t i = 0; i < len; ++i)
-                        {
-                            if (name[i] < 32 || name[i] > 126)
-                            {
-                                valid = false;
-                                break;
-                            }
-                        }
-                        if (valid)
-                            nameText = name;
-                        else
-                            nameText = "Invalid";
-                    }
-                    else
-                    {
-                        nameText = "Unknown";
-                    }
+                    nameText = FormatEntityName(entity.Name);
                 }
                 else
                 {
-                    nameText = "Unknown";
+                    nameText = FormatEntityName(entity.Name);
                 }
             }
 
             if (drawDistance)
             {
-                if (entity.Distance >= 0 && entity.Distance < 10000)
-                {
-                    char distanceBuffer[32];
-                    snprintf(distanceBuffer, sizeof(distanceBuffer), "[%.0fm]", entity.Distance);
-                    distanceText = distanceBuffer;
-                }
-                else
-                {
-                    distanceText = "[???m]";
-                }
+                distanceText = FormatDistanceText(entity.Distance);
             }
 
             if (nameText.empty() && distanceText.empty())
@@ -794,41 +676,41 @@ void Visuals::Render()
         // Yes it looks ugly, too bad. Dynamically obtaining & drawing the skeleton is a performance hit, manual is better.
         if(drawSkeleton) 
         {
-            BoneCache& cache = m_BoneCache[entity.Mesh];
+            VisualsTypes::BoneCache& cache = m_BoneCache[entity.Mesh];
             ImU32 color = entity.IsCop ? skeletonCopColor : skeletonCivilianColor;
 
             if (!cache.Initialized)
             {
-                BuildBoneCache(entity.Mesh, cache);
+                VisualsHelpers::BuildBoneCache(entity.Mesh, cache);
             }
             // Spine
-            DrawBone(pDrawList, pPlayerController, entity.Mesh, cache.Head, cache.Neck, color);
-            DrawBone(pDrawList, pPlayerController, entity.Mesh, cache.Neck, cache.Spine3, color);
-            DrawBone(pDrawList, pPlayerController, entity.Mesh, cache.Spine3, cache.Hips, color);
+            VisualsHelpers::DrawBone(pDrawList, pPlayerController, entity.Mesh, cache.Head, cache.Neck, color);
+            VisualsHelpers::DrawBone(pDrawList, pPlayerController, entity.Mesh, cache.Neck, cache.Spine3, color);
+            VisualsHelpers::DrawBone(pDrawList, pPlayerController, entity.Mesh, cache.Spine3, cache.Hips, color);
 
             // Left arm
-            DrawBone(pDrawList, pPlayerController, entity.Mesh, cache.Spine3, cache.LeftShoulder, color);
-            DrawBone(pDrawList, pPlayerController, entity.Mesh, cache.LeftShoulder, cache.LeftUpperArm, color);
-            DrawBone(pDrawList, pPlayerController, entity.Mesh, cache.LeftUpperArm, cache.LeftForeArm, color);
-            DrawBone(pDrawList, pPlayerController, entity.Mesh, cache.LeftForeArm, cache.LeftHand, color);
+            VisualsHelpers::DrawBone(pDrawList, pPlayerController, entity.Mesh, cache.Spine3, cache.LeftShoulder, color);
+            VisualsHelpers::DrawBone(pDrawList, pPlayerController, entity.Mesh, cache.LeftShoulder, cache.LeftUpperArm, color);
+            VisualsHelpers::DrawBone(pDrawList, pPlayerController, entity.Mesh, cache.LeftUpperArm, cache.LeftForeArm, color);
+            VisualsHelpers::DrawBone(pDrawList, pPlayerController, entity.Mesh, cache.LeftForeArm, cache.LeftHand, color);
 
             // Right arm
-            DrawBone(pDrawList, pPlayerController, entity.Mesh, cache.Spine3, cache.RightShoulder, color);
-            DrawBone(pDrawList, pPlayerController, entity.Mesh, cache.RightShoulder, cache.RightUpperArm, color);
-            DrawBone(pDrawList, pPlayerController, entity.Mesh, cache.RightUpperArm, cache.RightForeArm, color);
-            DrawBone(pDrawList, pPlayerController, entity.Mesh, cache.RightForeArm, cache.RightHand, color);
+            VisualsHelpers::DrawBone(pDrawList, pPlayerController, entity.Mesh, cache.Spine3, cache.RightShoulder, color);
+            VisualsHelpers::DrawBone(pDrawList, pPlayerController, entity.Mesh, cache.RightShoulder, cache.RightUpperArm, color);
+            VisualsHelpers::DrawBone(pDrawList, pPlayerController, entity.Mesh, cache.RightUpperArm, cache.RightForeArm, color);
+            VisualsHelpers::DrawBone(pDrawList, pPlayerController, entity.Mesh, cache.RightForeArm, cache.RightHand, color);
 
             // Left leg
-            DrawBone(pDrawList, pPlayerController, entity.Mesh, cache.Hips, cache.LeftUpperLeg, color);
-            DrawBone(pDrawList, pPlayerController, entity.Mesh, cache.LeftUpperLeg, cache.LeftLowerLeg, color);
-            DrawBone(pDrawList, pPlayerController, entity.Mesh, cache.LeftLowerLeg, cache.LeftFoot, color);
-            DrawBone(pDrawList, pPlayerController, entity.Mesh, cache.LeftFoot, cache.LeftToe, color);
+            VisualsHelpers::DrawBone(pDrawList, pPlayerController, entity.Mesh, cache.Hips, cache.LeftUpperLeg, color);
+            VisualsHelpers::DrawBone(pDrawList, pPlayerController, entity.Mesh, cache.LeftUpperLeg, cache.LeftLowerLeg, color);
+            VisualsHelpers::DrawBone(pDrawList, pPlayerController, entity.Mesh, cache.LeftLowerLeg, cache.LeftFoot, color);
+            VisualsHelpers::DrawBone(pDrawList, pPlayerController, entity.Mesh, cache.LeftFoot, cache.LeftToe, color);
 
             // Right leg
-            DrawBone(pDrawList, pPlayerController, entity.Mesh, cache.Hips, cache.RightUpperLeg, color);
-            DrawBone(pDrawList, pPlayerController, entity.Mesh, cache.RightUpperLeg, cache.RightLowerLeg, color);
-            DrawBone(pDrawList, pPlayerController, entity.Mesh, cache.RightLowerLeg, cache.RightFoot, color);
-            DrawBone(pDrawList, pPlayerController, entity.Mesh, cache.RightFoot, cache.RightToe, color);
+            VisualsHelpers::DrawBone(pDrawList, pPlayerController, entity.Mesh, cache.Hips, cache.RightUpperLeg, color);
+            VisualsHelpers::DrawBone(pDrawList, pPlayerController, entity.Mesh, cache.RightUpperLeg, cache.RightLowerLeg, color);
+            VisualsHelpers::DrawBone(pDrawList, pPlayerController, entity.Mesh, cache.RightLowerLeg, cache.RightFoot, color);
+            VisualsHelpers::DrawBone(pDrawList, pPlayerController, entity.Mesh, cache.RightFoot, cache.RightToe, color);
         }
 
         if(drawHighlight) //Anyone know a good way to disable this shit ? Setting it false doesn't even disable it.
@@ -846,9 +728,9 @@ void Visuals::Render()
                     
             ImVec2 vecTextSize = ImGui::CalcTextSize(item.Name.c_str());
 
-            ImU32 itemColor = ItemType::Cash == item.Type ? itemCashColor :
-                              ItemType::DepositBox == item.Type ? itemDepositBoxColor :
-                              ItemType::Keycard == item.Type ? itemKeycardColor : IM_COL32(255, 255, 255, 255);
+            ImU32 itemColor = VisualsTypes::ItemType::Cash == item.Type ? itemCashColor :
+                              VisualsTypes::ItemType::DepositBox == item.Type ? itemDepositBoxColor :
+                              VisualsTypes::ItemType::Keycard == item.Type ? itemKeycardColor : IM_COL32(255, 255, 255, 255);
 
             pDrawList->AddText(
                 ImVec2(item.ScreenLocation.X - vecTextSize.x / 2 - 1, item.ScreenLocation.Y - vecTextSize.y / 2 - 1),

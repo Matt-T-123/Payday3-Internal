@@ -113,6 +113,7 @@ target("Payday3-Internal_V2")
     add_files("Payday3-Internal_V2/GUI/Addons/imgui_addons.cpp")
 
     -- Features
+    add_files("Payday3-Internal_V2/Features/*.cpp")
     add_files("Payday3-Internal_V2/Features/*/*.cpp")
 
     -- Unreal SDK interfaces

@@ -1,6 +1,6 @@
 #pragma once
 #include "pch.h"
-#include "VisualsTypes.hpp"
+#include "Types.hpp"
 
 class Visuals : public BaseFeature
 {
@@ -73,11 +73,11 @@ private:
 	std::unique_ptr<MultiSelectCombo> m_pFilters = std::make_unique<MultiSelectCombo>("VISUALS_FILTERS", "VISUALS_FILTERS"Hashed, ElementBase::Style_t{ .vec2Size = ImVec2(-0.1f, 0) });
 	std::unique_ptr<MultiSelectCombo> m_pItemFilters = std::make_unique<MultiSelectCombo>("VISUALS_ITEM_FILTERS", "VISUALS_ITEM_FILTERS"Hashed, ElementBase::Style_t{ .vec2Size = ImVec2(-0.1f, 0) });
 
-	std::vector<VisualsTypes::ESPData> m_vESPData;
-	std::unordered_map<SDK::USkeletalMeshComponent*, VisualsTypes::BoneCache> m_BoneCache;
-	std::unordered_map<SDK::UClass*, VisualsTypes::EnemyType> m_ClassCache;
-	std::vector<VisualsTypes::ItemData> m_vItemData;
-	std::unordered_map<SDK::UClass*, VisualsTypes::ItemType> m_ItemTypeCache;
+	std::vector<Types::ESPData> m_vESPData;
+	std::unordered_map<SDK::USkeletalMeshComponent*, Types::BoneCache> m_BoneCache;
+	std::unordered_map<SDK::UClass*, Types::EnemyType> m_ClassCache;
+	std::vector<Types::ItemData> m_vItemData;
+	std::unordered_map<SDK::UClass*, Types::ItemType> m_ItemTypeCache;
 
 	struct FrameSettings
 	{
@@ -116,10 +116,10 @@ private:
 
 private:
 	void CollectFrameData(SDK::UWorld* pGWorld, SDK::APlayerController* pPlayerController, SDK::APlayerCameraManager* pCameraManager,
-		SDK::ASBZCharacter* pLocalPlayer, const FrameSettings& settings);
+		SDK::AActor* pLocalPlayer, const FrameSettings& settings);
 	void DrawFrame(ImDrawList* pDrawList, SDK::APlayerController* pPlayerController, const FrameSettings& settings, const FrameColors& colors);
-	VisualsTypes::ItemType GetItemType(SDK::AActor* actor);
-	VisualsTypes::EnemyType GetEnemyType(SDK::AActor* actor);
+	Types::ItemType GetItemType(SDK::AActor* actor);
+	Types::EnemyType GetEnemyType(SDK::AActor* actor);
 
 public:
 	bool SetupMenu();

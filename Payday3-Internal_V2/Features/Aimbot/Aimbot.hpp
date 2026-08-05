@@ -34,14 +34,19 @@ private:
 		ImGuiChildFlags_Border);
 
 	std::unique_ptr<Checkbox> m_pAimbotEnabled = std::make_unique<Checkbox>("AIMBOT_ENABLED", "AIMBOT_ENABLED"Hashed);
+	std::unique_ptr<Checkbox> m_pAimbotVisibleCheck = std::make_unique<Checkbox>("AIMBOT_VISIBLE_CHECK", "AIMBOT_VISIBLE_CHECK"Hashed);
 	std::unique_ptr<Checkbox> m_pAimbotFOVEnabled = std::make_unique<Checkbox>("AIMBOT_FOV_ENABLED", "AIMBOT_FOV_ENABLED"Hashed);
+	std::unique_ptr<Hotkey> m_pAimbotHotkey = std::make_unique<Hotkey>("AIMBOT_HOTKEY", "AIMBOT_HOTKEY"Hashed);
 	std::unique_ptr<Combo> m_pAimbotType = std::make_unique<Combo>("AIMBOT_TYPE", "AIMBOT_TYPE"Hashed, ElementBase::Style_t{ .iFlags = ImGuiComboFlags_WidthFitPreview });
-	std::unique_ptr<SliderInt> m_pFOV = std::make_unique<SliderInt>("AIMBOT_FOV", "AIMBOT_FOV"Hashed, ElementBase::Style_t{ .iFlags = ImGuiComboFlags_WidthFitPreview }, 60, 0, 100);
+	std::unique_ptr<Combo> m_pAimbotTarget = std::make_unique<Combo>("AIMBOT_TARGET", "AIMBOT_TARGET"Hashed, ElementBase::Style_t{ .iFlags = ImGuiComboFlags_WidthFitPreview });
+	std::unique_ptr<ColorPicker> m_pAimbotFOVColor = std::make_unique<ColorPicker>("AIMBOT_FOV_COLOR", "AIMBOT_FOV_COLOR"Hashed, ElementBase::Style_t{ .vec2Size = ImVec2(0.f, 0.f) });
+	std::unique_ptr<SliderInt> m_pFOV = std::make_unique<SliderInt>("AIMBOT_FOV", "AIMBOT_FOV"Hashed, ElementBase::Style_t{ .iFlags = ImGuiComboFlags_WidthFitPreview }, 60, 0, 200);
 	std::unique_ptr<SliderInt> m_pSmoothing = std::make_unique<SliderInt>("AIMBOT_SMOOTHING", "AIMBOT_SMOOTHING"Hashed, ElementBase::Style_t{ .iFlags = ImGuiComboFlags_WidthFitPreview }, 10, 0, 100);
 
 public:
 	bool SetupMenu();
 	void HandleMenu();
+	void Render();
 	void Run();
 	RadioButtonIcon* GetMenuButton() const { return m_pMenuButton.get(); }
 	std::string GetName() { return "Aimbot"; };

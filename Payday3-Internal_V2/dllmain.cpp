@@ -18,6 +18,9 @@ static bool FrameworkInit()
 
 	if (!Framework::renderer.get()->Setup())
 		return false;
+	
+	if (!Framework::aimbotHooks.get()->Setup())
+		return false;
 
 #if ENGINE_UNREAL
 	if (!FrameworkUnrealInit())
@@ -71,6 +74,7 @@ DWORD WINAPI FrameworkMainThread(LPVOID lpParam)
 
 	Framework::wndproc.get()->Destroy();
 	Framework::renderer.get()->Destroy();
+	Framework::aimbotHooks.get()->Destroy();
 
 	// Destroy features
 	for (auto& pFeature : Framework::g_vecFeatures)

@@ -50,6 +50,10 @@ public:
 	void Run();
 	RadioButtonIcon* GetMenuButton() const { return m_pMenuButton.get(); }
 	std::string GetName() { return "Aimbot"; };
+
+	bool ShouldOverrideView = false;
+    SDK::FVector OverrideLocation{};
+    SDK::FRotator OverrideRotation{};
 };
 
 inline std::unique_ptr<Aimbot> pAimbot = std::make_unique<Aimbot>();

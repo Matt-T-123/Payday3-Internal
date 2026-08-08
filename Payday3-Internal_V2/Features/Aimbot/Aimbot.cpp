@@ -108,6 +108,8 @@ void Aimbot::HandleMenu()
 
 void Aimbot::Render()
 {
+	ShouldOverrideView = false;
+	
 	if (m_pAimbotFOVEnabled->GetValue())
 	{
 		const ImU32 color = ImGui::ColorConvertFloat4ToU32(m_pAimbotFOVColor->GetValue());
@@ -117,10 +119,7 @@ void Aimbot::Render()
 		const ImVec2 center = ImGui::GetIO().DisplaySize * 0.5f;
 		pDrawList->AddCircle(center, maxScreenDistance, color, 100, 1.0f);
 	}
-}
 
-void Aimbot::Run()
-{
 	if (!m_pAimbotEnabled->GetValue())
 		return;
 
@@ -165,9 +164,12 @@ void Aimbot::Run()
 	const float deltaYaw = NormalizeAngle(desiredRotation.Yaw - rotCameraRotation.Yaw) * alpha;
 	const float deltaPitch = NormalizeAngle(desiredRotation.Pitch - rotCameraRotation.Pitch) * alpha;
 
-	if (m_pAimbotType->GetSelectedIndex() == 0)
+	if (m_pAimbotType->GetSelectedIndex() == 0 && ImGui::IsMouseDown(ImGuiMouseButton_Left))
 	{
 		// Silent
+		ShouldOverrideView = true;
+		OverrideLocation = optTarget->AimWorldLocation;
+		OverrideRotation = desiredRotation;
 	}
 	else if (m_pAimbotType->GetSelectedIndex() == 1)
 	{
@@ -175,4 +177,9 @@ void Aimbot::Run()
 		pPlayerController->AddYawInput(deltaYaw);
 		pPlayerController->AddPitchInput(-deltaPitch);
 	}
+}
+
+void Aimbot::Run()
+{
+	
 }

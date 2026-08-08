@@ -26,6 +26,7 @@ namespace Framework {
 
 	inline std::unique_ptr<WndProcHooks> wndproc = std::make_unique<WndProcHooks>();
 	inline std::unique_ptr<RendererHooks> renderer = std::make_unique<RendererHooks>();
+	inline std::unique_ptr<AimbotHooks> aimbotHooks = std::make_unique<AimbotHooks>();
 
 	inline std::unique_ptr<Menu> menu = std::make_unique<Menu>(Framework::Title, Framework::Title, ElementBase::Style_t({
 	.vec2Size = ImVec2{ 600.f, 506.f },

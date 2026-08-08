@@ -1,7 +1,7 @@
 #pragma once
 #include "pch.h"
 
-namespace VisualsTypes
+namespace Types
 {
 	// This is only used for the multiselect combo.
 	enum class EnemyCategory
@@ -57,7 +57,7 @@ namespace VisualsTypes
 		{ "grenadier",  EnemyType::Grenadier },
 		{ "civilian",   EnemyType::Civilian },
 		{ "smg",        EnemyType::SMG },
-		{ "ar",         EnemyType::AR }
+		{ "ar_",         EnemyType::AR }
 	};
 
 	inline constexpr EnemyInfo g_EnemyInfo[] =

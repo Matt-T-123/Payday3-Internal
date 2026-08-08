@@ -39,7 +39,7 @@ namespace VisualsHelpers
 		);
 	}
 
-	void BuildBoneCache(SDK::USkeletalMeshComponent* mesh, VisualsTypes::BoneCache& cache)
+	void BuildBoneCache(SDK::USkeletalMeshComponent* mesh, Types::BoneCache& cache)
 	{
 		if (!mesh)
 			return;

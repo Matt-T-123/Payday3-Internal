@@ -50,7 +50,7 @@
 #define STR(X) STRR(X)
 
 #define FRAMEWORK_MAJOR_VERSION 2
-#define FRAMEWORK_MINOR_VERSION 1
+#define FRAMEWORK_MINOR_VERSION 2
 #define FRAMEWORK_REWORK_VERSION 0
 #define FRAMEWORK_VERSION FRAMEWORK_MAJOR_VERSION.FRAMEWORK_MINOR_VERSION.FRAMEWORK_REWORK_VERSION
 
@@ -117,3 +117,4 @@ static_assert((FRAMEWORK_RENDER_DYNAMIC + FRAMEWORK_RENDER_D3D11 + FRAMEWORK_REN
 
 #include "Hooks/WndProc/WndProcHooks.hpp"
 #include "Hooks/Renderer/RendererHooks.hpp"
+#include "Hooks/Features/AimbotHooks.hpp"

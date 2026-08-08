@@ -107,12 +107,14 @@ target("Payday3-Internal_V2")
     add_files("Payday3-Internal_V2/Hooks/Renderer/D3D12Hooks.cpp")
     add_files("Payday3-Internal_V2/Hooks/Renderer/RendererHooks.cpp")
     add_files("Payday3-Internal_V2/Hooks/WndProc/WndProcHooks.cpp")
+    add_files("Payday3-Internal_V2/Hooks/Features/AimbotHooks.cpp")
 
     -- GUI
     add_files("Payday3-Internal_V2/GUI/GUI.cpp")
     add_files("Payday3-Internal_V2/GUI/Addons/imgui_addons.cpp")
 
     -- Features
+    add_files("Payday3-Internal_V2/Features/*.cpp")
     add_files("Payday3-Internal_V2/Features/*/*.cpp")
 
     -- Unreal SDK interfaces

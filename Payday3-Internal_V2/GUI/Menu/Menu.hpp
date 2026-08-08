@@ -1292,6 +1292,21 @@ public:
 		m_stStyle = stStyle;
 	};
 
+	void SetKey(ImGuiKey key)
+	{
+		m_eKey = key;
+	}
+
+	ImGuiKey GetKey() const
+	{
+		return m_eKey;
+	}
+
+	void SetMode(EHotkeyMode mode)
+	{
+		m_eMode = mode;
+	}
+
 	constexpr EElementType GetType() const override
 	{
 		return EElementType::Hotkey;
@@ -1303,6 +1318,12 @@ public:
 			return;
 
 		SameLine();
+
+		const std::string sLabel = GetName();
+		const auto id = ImGui::GetID(sLabel.c_str());
+		ImGui::PushID(sLabel.c_str());
+
+		ImGui::TextUnformatted(sLabel.c_str());
 
 		if (ImAdd::BeginCombo(("##CMB" + GetName()).c_str(), "##", ImGuiComboFlags_NoPreview))
 		{
@@ -1339,11 +1360,7 @@ public:
 			ImGui::EndCombo();
 		}
 
-		ImGui::SameLine(0.f, 2.f);
-
-		const char* szLabel = GetName().c_str();
-		const auto id = ImGui::GetID(szLabel);
-		ImGui::PushID(szLabel);
+		ImGui::SameLine(0.f, 8.f);
 
 		std::string BtnName = (m_bSetting) ? "..." : ImGui::GetKeyName(m_eKey);
 
@@ -1363,10 +1380,6 @@ public:
 			ImGui::SetActiveID(id, ImGui::GetCurrentWindow());
 			m_bSetting = true;
 		}
-
-		ImGui::SameLine(0.f, 4.f);
-
-		ImGui::Text("%s", GetName().c_str());
 
 		ImGui::PopID();
 

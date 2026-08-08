@@ -9,67 +9,6 @@
 
 namespace
 {
-    std::string ToLowerCopy(std::string value)
-    {
-        std::transform(value.begin(), value.end(), value.begin(),
-            [](unsigned char c)
-            {
-                return static_cast<char>(std::tolower(c));
-            });
-        return value;
-    }
-
-    VisualsTypes::EnemyType ResolveEnemyType(std::unordered_map<SDK::UClass*, VisualsTypes::EnemyType>& cache, SDK::AActor* actor)
-    {
-        auto it = cache.find(actor->Class);
-        if (it != cache.end())
-            return it->second;
-
-        VisualsTypes::EnemyType type = VisualsTypes::EnemyType::None;
-        std::string className = ToLowerCopy(actor->Class->Name.ToString());
-
-        for (const auto& entry : VisualsTypes::g_EnemyLookup)
-        {
-            if (className.find(entry.Keyword) != std::string::npos)
-            {
-                type = entry.Type;
-                break;
-            }
-        }
-
-        cache.try_emplace(actor->Class, type);
-        return type;
-    }
-
-    VisualsTypes::ItemType ResolveItemType(std::unordered_map<SDK::UClass*, VisualsTypes::ItemType>& cache, SDK::AActor* actor)
-    {
-        auto it = cache.find(actor->Class);
-        if (it != cache.end())
-            return it->second;
-
-        VisualsTypes::ItemType type = VisualsTypes::ItemType::None;
-
-        for (SDK::UStruct* pStruct = actor->Class; pStruct; pStruct = static_cast<SDK::UStruct*>(pStruct->SuperStruct))
-        {
-            std::string name = ToLowerCopy(pStruct->Name.ToString());
-
-            for (const auto& entry : VisualsTypes::g_ItemLookup)
-            {
-                if (name.find(entry.Keyword) != std::string::npos)
-                {
-                    type = entry.Type;
-                    break;
-                }
-            }
-
-            if (type != VisualsTypes::ItemType::None)
-                break;
-        }
-
-        cache.emplace(actor->Class, type);
-        return type;
-    }
-
     std::string FormatEntityName(const std::string& name)
     {
         if (name.empty())
@@ -100,44 +39,6 @@ namespace
 
         return "[???m]";
     }
-
-    bool TryReadPawnStats(SDK::ASBZCharacter* character, float& health, float& healthMax, float& armor, float& armorMax)
-    {
-        auto* abilitySystem = character->AbilitySystem;
-        if (!abilitySystem)
-            return false;
-
-        UC::TArray<SDK::UAttributeSet*>* spawnedAttrs = (UC::TArray<SDK::UAttributeSet*>*)((uintptr_t)abilitySystem + 0x0150);
-        if (!spawnedAttrs)
-            return false;
-
-        for (int i = 0; i < spawnedAttrs->Num(); ++i)
-        {
-            auto* attrSet = (*spawnedAttrs)[i];
-            if (attrSet && attrSet->IsA(SDK::USBZPawnAttributeSet::StaticClass()))
-            {
-                auto* pawnAttrs = static_cast<SDK::USBZPawnAttributeSet*>(attrSet);
-                health = pawnAttrs->Health.CurrentValue;
-                healthMax = pawnAttrs->HealthMax.CurrentValue;
-                armor = pawnAttrs->Armor.CurrentValue;
-                armorMax = pawnAttrs->ArmorMax.CurrentValue;
-                return true;
-            }
-        }
-
-        return false;
-    }
-
-}
-
-VisualsTypes::EnemyType Visuals::GetEnemyType(SDK::AActor* actor)
-{
-    return ResolveEnemyType(m_ClassCache, actor);
-}
-
-VisualsTypes::ItemType Visuals::GetItemType(SDK::AActor* actor)
-{
-    return ResolveItemType(m_ItemTypeCache, actor);
 }
 
 bool Visuals::SetupMenu()
@@ -355,13 +256,6 @@ void Visuals::Render()
     const ImU32 itemDepositBoxColor = ImGui::ColorConvertFloat4ToU32(m_pItemDepositBoxColor->GetValue());
     const ImU32 itemKeycardColor = ImGui::ColorConvertFloat4ToU32(m_pItemKeycardColor->GetValue());
 
-    // Clear or else it'll look like you got concussed with a cod nade. Trust me...
-    m_vESPData.clear();
-    m_vESPData.reserve(256); // Reserving space for 256 objects to avoid frequent reallocations, but may need to increase in the future if more objects are present than expected.
-
-    m_vItemData.clear();
-    //m_vItemData.reserve(256);
-
     if (!drawBox && !drawName && !drawDistance && !drawHealthBar && !drawArmorBar && !drawSkeleton && !drawHighlight && !drawItems)
         return;
 
@@ -376,135 +270,25 @@ void Visuals::Render()
     SDK::APlayerCameraManager* pCameraManager = pPlayerController->PlayerCameraManager;
     if (!pCameraManager)
         return;
-    SDK::FVector vecCameraLocation = pCameraManager->GetCameraLocation();
 
-    // Get the local player
-    auto pLocalPlayer = pPlayerController->AcknowledgedPawn;
-    if (!pLocalPlayer)
-        return;
+    const ImVec4 settingsBox = ImVec4(drawBox, drawName, drawDistance, drawHealthBar);
+    (void)settingsBox;
 
-    // Get world runtime for actors
-    SDK::USBZWorldRuntime* pWorldRuntime = SDK::USBZWorldRuntime::Get(pGWorld);
-    if (!pWorldRuntime)
-        return;
-
-    // Get filter states
-    bool bShowCops = m_pFilters->IsSelected(0);
-    bool bShowCivilians = m_pFilters->IsSelected(1);
-
-    // Get key item filter states
-    bool bShowCash = m_pItemFilters->IsSelected(0);
-    bool bShowDepositBox = m_pItemFilters->IsSelected(1);
-    bool bShowKeycards = m_pItemFilters->IsSelected(2);
-
-    UC::TArray<SDK::UObject*>& actors = pWorldRuntime->AllPawns->Objects;
-    UC::TArray<SDK::ULevel*> vecLevels = pGWorld->Levels;
-    
-    for (int i = 0; i < actors.Num(); ++i) {
-        if (!actors.IsValidIndex(i))
-            break;
-
-        auto pActor = reinterpret_cast<SDK::AActor*>(actors[i]);
-        if (!pActor)
-            continue;
-
-        // Skip local player
-        if (pActor == pLocalPlayer)
-            continue;
-
-        // Check if character is alive
-        auto pCharacter = reinterpret_cast<SDK::ASBZCharacter*>(pActor);
-        if (!pCharacter)
-            continue;
-        
-        if (!pCharacter->bIsAlive)
-            continue;
-
-        VisualsTypes::EnemyType type = GetEnemyType(pActor);
-
-        const VisualsTypes::EnemyInfo& info = VisualsTypes::g_EnemyInfo[static_cast<size_t>(type)];
-
-        bool bIsCop       = info.Category == VisualsTypes::EnemyCategory::Cop;
-        bool bIsCivilian  = info.Category == VisualsTypes::EnemyCategory::Civilian;
-
-        const char* sName = info.Name;
-
-        if (!bIsCop && !bIsCivilian)
-            continue;
-
-        // Apply filters
-        if (bIsCop && !bShowCops)
-            continue;
-        if (bIsCivilian && !bShowCivilians)
-            continue;
-
-        // Get skeletal mesh
-        SDK::USkeletalMeshComponent* pMesh = pCharacter->Mesh;
-        if (!pMesh)
-            continue;
-
-        // Calculate screen box
-        auto optScreenBox = VisualsHelpers::CalculateScreenBoxForCharacter(pMesh, pPlayerController, pActor);
-        if (!optScreenBox.has_value())
-            continue;
-
-        ImVec4 vec4ScreenBox = optScreenBox.value();
-
-        // Calculate distance
-        float flDistance = (pActor->K2_GetActorLocation() - vecCameraLocation).Magnitude() / 100.0f;
-
-        float flHealth = 0.0f;
-        float flHealthMax = 0.0f;
-        float flArmor = 0.0f;
-        float flArmorMax = 0.0f;
-        TryReadPawnStats(pCharacter, flHealth, flHealthMax, flArmor, flArmorMax);
-
-        m_vESPData.push_back({
-            vec4ScreenBox,
-            std::string(sName),
-            pMesh,
-            pCharacter,
-            flHealth,
-            flHealthMax,
-            flArmor,
-            flArmorMax,
-            flDistance,
-            bIsCop,
-            bIsCivilian
-        });
-    }
-
-    for (SDK::ULevel *pLevel : vecLevels)
-    {
-        if (!pLevel || !pLevel->Actors)
-            continue;
-
-        for (SDK::AActor* pActor : pLevel->Actors)
-        {
-            if (!pActor)
-                continue;
-
-            VisualsTypes::ItemType type = GetItemType(pActor); //Yes it's laggy at the start, it's supposed to be that way. 
-                                                 //Caching as things are discovered gives lag spikes so instead I'm just caching everything at the start to have one big lag spike instead of multiple ones.
-
-            if (type == VisualsTypes::ItemType::None)
-                continue;
-
-            if (!((type == VisualsTypes::ItemType::Cash && bShowCash) || (type == VisualsTypes::ItemType::DepositBox && bShowDepositBox) || (type == VisualsTypes::ItemType::Keycard && bShowKeycards)))
-                continue;
-
-            SDK::FVector ActorLocation = pActor->K2_GetActorLocation();
-
-            SDK::FVector2D ScreenLocation;
-
-            m_vItemData.push_back({
-                ScreenLocation,
-                ActorLocation,
-                std::string(pActor->GetName()),
-                type
-            });
-        }
-    }
+    CollectFrameData(pGWorld, pPlayerController, pCameraManager, pPlayerController->AcknowledgedPawn, {
+        drawBox,
+        drawName,
+        drawDistance,
+        drawHealthBar,
+        drawArmorBar,
+        drawSkeleton,
+        drawHighlight,
+        drawItems,
+        m_pFilters->IsSelected(0),
+        m_pFilters->IsSelected(1),
+        m_pItemFilters->IsSelected(0),
+        m_pItemFilters->IsSelected(1),
+        m_pItemFilters->IsSelected(2)
+    });
 
     if (m_vESPData.empty() && m_vItemData.empty())
         return;
@@ -676,7 +460,7 @@ void Visuals::Render()
         // Yes it looks ugly, too bad. Dynamically obtaining & drawing the skeleton is a performance hit, manual is better.
         if(drawSkeleton) 
         {
-            VisualsTypes::BoneCache& cache = m_BoneCache[entity.Mesh];
+            Types::BoneCache& cache = m_BoneCache[entity.Mesh];
             ImU32 color = entity.IsCop ? skeletonCopColor : skeletonCivilianColor;
 
             if (!cache.Initialized)
@@ -728,9 +512,9 @@ void Visuals::Render()
                     
             ImVec2 vecTextSize = ImGui::CalcTextSize(item.Name.c_str());
 
-            ImU32 itemColor = VisualsTypes::ItemType::Cash == item.Type ? itemCashColor :
-                              VisualsTypes::ItemType::DepositBox == item.Type ? itemDepositBoxColor :
-                              VisualsTypes::ItemType::Keycard == item.Type ? itemKeycardColor : IM_COL32(255, 255, 255, 255);
+            ImU32 itemColor = Types::ItemType::Cash == item.Type ? itemCashColor :
+                              Types::ItemType::DepositBox == item.Type ? itemDepositBoxColor :
+                              Types::ItemType::Keycard == item.Type ? itemKeycardColor : IM_COL32(255, 255, 255, 255);
 
             pDrawList->AddText(
                 ImVec2(item.ScreenLocation.X - vecTextSize.x / 2 - 1, item.ScreenLocation.Y - vecTextSize.y / 2 - 1),

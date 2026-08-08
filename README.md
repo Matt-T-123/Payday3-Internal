@@ -28,6 +28,55 @@ Output: `Build/Debug/` or `Build/Release/`
 - minhook
 - imgui (with win32-binding, dx12-binding)
 
+## Features
+### Player
+- [x] Godmode (Set health / Block damage)
+- [x] Infinite Stamina
+- [x] Instant Melee
+- [x] No Screenshake
+- [x] No Fall Damage
+- [x] No Detection
+
+- [ ] Mods for other players in game (No there won't griefing options so don't ask)
+
+- [x] Instant Reload
+- [x] Infinite Ammo
+- [x] No Recoil
+- [x] No Spread
+- [x] Custom fire rate
+
+### Visuals
+- (Cops / Civilians)
+    - [x] Bounding Boxes
+    - [x] Names
+    - [x] Distance
+    - [x] Health Bar
+    - [x] Armor Bar
+    - [x] Skeleton
+    - [x] Highlighting
+- (Cash / Deposit Box / Keycards)
+    - [x] Items
+
+### Aimbot
+- [x] Snapping
+- [x] Silent
+- [x] Fov Circle
+- [x] Smoothing
+
+### Misc
+- [ ] Config saving & loading
+
+### Possible Future Features
+(These are not guaranteed and only ideas that may become features)
+- [ ] Lua scripts
+- [ ] Flying
+- [ ] Player Teleporting (pre-set locations)
+- [ ] Bag Teleporting
+- [ ] Heist Automation
+- [ ] Player Hud customisation
+- [ ] Menu customisation
+- [ ] More language support
+
 ## Usage
 
 ### Windows
@@ -36,9 +85,9 @@ Output: `Build/Debug/` or `Build/Release/`
 - **Injection**: Use any DLL injector to inject `Payday3-Internal.dll` into the `PAYDAY3Client-Win64-Shipping.exe` process.
 - **In-Game**: Press `INSERT` to open the menu and `END` to unload the cheat.
 
+### Proton
 **Note:** v2 hasn't been tested on Proton (but most likely does work).
 
-### Proton
 - **Supports Proton:** As of v1.2.13b & [#6](https://github.com/Omega172/Payday3-Internal/pull/6), the cheat should work on both Windows and Linux (proton) versions of the game. Thanks to [alexgot1151](https://github.com/alexgot1151)
 #### Set the stage
 - Install [protonhax](https://github.com/jcnils/protonhax) on your linux machine.

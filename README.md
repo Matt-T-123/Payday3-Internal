@@ -55,13 +55,13 @@ Output: `Build/Debug/` or `Build/Release/`
     - [x] Skeleton
     - [x] Highlighting
 - (Cash / Deposit Box / Keycards)
-    - Items
+    - [x] Items
 
 ### Aimbot
-- [ ] Snapping
-- [ ] Silent
-- [ ] Fov Circle
-- [ ] Smoothing
+- [x] Snapping
+- [x] Silent
+- [x] Fov Circle
+- [x] Smoothing
 
 ### Misc
 - [ ] Config saving & loading

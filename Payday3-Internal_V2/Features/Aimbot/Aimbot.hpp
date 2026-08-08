@@ -48,6 +48,7 @@ public:
 	void HandleMenu();
 	void Render();
 	void Run();
+	int CurrentAimbotType();
 	RadioButtonIcon* GetMenuButton() const { return m_pMenuButton.get(); }
 	std::string GetName() { return "Aimbot"; };
 

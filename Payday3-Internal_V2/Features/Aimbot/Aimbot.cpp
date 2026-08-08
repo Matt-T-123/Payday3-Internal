@@ -32,6 +32,11 @@ namespace
 	}
 }
 
+int Aimbot::CurrentAimbotType()
+{
+	return m_pAimbotType->GetSelectedIndex(); // 0 = Silent, 1 = Snapping
+}
+
 bool Aimbot::SetupMenu()
 {
 	Localization::AddToLocale("ENG", std::initializer_list<std::pair<size_t, std::string>>{
@@ -108,8 +113,6 @@ void Aimbot::HandleMenu()
 
 void Aimbot::Render()
 {
-	ShouldOverrideView = false;
-	
 	if (m_pAimbotFOVEnabled->GetValue())
 	{
 		const ImU32 color = ImGui::ColorConvertFloat4ToU32(m_pAimbotFOVColor->GetValue());
@@ -167,7 +170,6 @@ void Aimbot::Render()
 	if (m_pAimbotType->GetSelectedIndex() == 0 && ImGui::IsMouseDown(ImGuiMouseButton_Left))
 	{
 		// Silent
-		ShouldOverrideView = true;
 		OverrideLocation = optTarget->AimWorldLocation;
 		OverrideRotation = desiredRotation;
 	}

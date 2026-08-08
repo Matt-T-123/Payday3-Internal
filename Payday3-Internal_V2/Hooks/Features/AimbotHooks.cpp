@@ -15,7 +15,7 @@ static void hkLocalPlayerGetViewPoint(SDK::ULocalPlayer* pLocalPlayer, SDK::FMin
 {
 	oLocalPlayerGetViewPoint(pLocalPlayer, pViewInfo);
 
-	if (!pAimbot)
+	if (pAimbot->CurrentAimbotType() == 0)
 		return;
 
 	if (!pAimbot->ShouldOverrideView)
@@ -93,7 +93,7 @@ static void hkGetPlayerViewPoint(SDK::APlayerController* pPlayerController, SDK:
 	else if(pGoalRet1 != pReturnAddress && pGoalRet2 != pReturnAddress)
 		return;
 
-	if (!pAimbot)
+	if (!pAimbot->CurrentAimbotType() == 0)
 		return;
 
 	if (!pAimbot->ShouldOverrideView)

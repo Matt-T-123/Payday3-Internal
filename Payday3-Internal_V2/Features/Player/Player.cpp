@@ -451,15 +451,13 @@ void Player::fireRate(bool bEnabled)
 		if (!weaponData || !weaponData->FireData)
 			continue;
 
+		auto* backup = GetWeaponBackupData(weaponData);
 		if (bEnabled) {
-			weaponData->FireData->RoundsPerMinute = 
-				weaponData->FireData->ProjectilesPerFiredRound = m_pFireRateSlider->GetValue();
+			weaponData->FireData->RoundsPerMinute = backup->m_flRoundsPerMinute * m_pFireRateSlider->GetValue();
 			weaponData->FireData->FireMode = SDK::ESBZFireMode::Auto;
 		} else {
-			auto* backup = GetWeaponBackupData(weaponData);
 			if (backup) {
 				weaponData->FireData->RoundsPerMinute = backup->m_flRoundsPerMinute;
-				weaponData->FireData->ProjectilesPerFiredRound = backup->m_iProjectilesPerFiredRound;
 				weaponData->FireData->FireMode = backup->m_eFireMode;
 			}
 		}

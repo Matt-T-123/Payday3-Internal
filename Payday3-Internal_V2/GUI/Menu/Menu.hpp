@@ -906,6 +906,7 @@ protected:
 
 	std::string m_sPreviewlabel = "PreviewNotSet";
 	std::function<void()> m_Callback;
+	std::function<void(int oldIndex, int newIndex)> m_OnValueChangedCallback;
 	std::vector<ComboOption> m_Options;
 	int m_iSelectedIndex = -1;
 
@@ -948,10 +949,11 @@ public:
 				for (size_t i = 0; i < m_Options.size(); ++i)
 				{
 					bool bSelected = m_iSelectedIndex == static_cast<int>(i);
+
 					if (ImAdd::Selectable(m_Options[i].sLabel.c_str(), bSelected))
 					{
-						m_iSelectedIndex = static_cast<int>(i);
-						m_sPreviewlabel = m_Options[i].sLabel;
+						SetSelectedIndex(static_cast<int>(i));
+
 						if (m_Options[i].Callback)
 							m_Options[i].Callback();
 					}
@@ -979,9 +981,7 @@ public:
 
 	void AddOption(std::string sLabel, std::function<void()> Callback = nullptr)
 	{
-		m_Options.push_back({ sLabel, Callback });
-		
-		// Set preview label to first option if not set
+		m_Options.push_back({sLabel, Callback});
 		if (m_iSelectedIndex == -1 && !m_Options.empty())
 		{
 			m_iSelectedIndex = 0;
@@ -996,11 +996,26 @@ public:
 
 	void SetSelectedIndex(int iIndex)
 	{
-		if (iIndex >= 0 && iIndex < static_cast<int>(m_Options.size()))
+		if (iIndex < 0 || iIndex >= static_cast<int>(m_Options.size()))
 		{
-			m_iSelectedIndex = iIndex;
-			m_sPreviewlabel = m_Options[iIndex].sLabel;
+			return;
 		}
+
+		if (m_iSelectedIndex == iIndex)
+			return;
+
+		const int oldIndex = m_iSelectedIndex;
+
+		m_iSelectedIndex = iIndex;
+		m_sPreviewlabel = m_Options[iIndex].sLabel;
+
+		if (m_OnValueChangedCallback)
+			m_OnValueChangedCallback(oldIndex, iIndex);
+	};
+
+	void SetOnValueChangedCallback(std::function<void(int oldIndex, int newIndex)> callback)
+	{
+		m_OnValueChangedCallback = std::move(callback);
 	};
 };
 

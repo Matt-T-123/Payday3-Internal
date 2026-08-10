@@ -5,11 +5,12 @@
 ![GitHub Downloads (all assets, all releases)](https://img.shields.io/github/downloads/Omega172/Payday3-Internal/total)
 [![Discord](https://img.shields.io/discord/1209142443627257856)](https://discord.gg/zc8E7dYYRe)
 
-An cheat for Payday 3 targeting the steam build.
+A cheat for Payday 3 targeting the steam build.
 
 Download the latest DLL from [here](https://github.com/Omega172/Payday3-Internal/releases/latest)
 
-Download the injector from [here](https://github.com/Omega172/Payday3-Internal/releases/tag/Injector)
+For injection I recommend downloading Xenos Injector 2.3.2 from [here](https://www.unknowncheats.me/forum/downloads.php?do=file&id=23686)
+or from the official Xenos Github [here](https://github.com/DarthTon/Xenos)
 
 ## Building
 
@@ -36,6 +37,8 @@ Output: `Build/Debug/` or `Build/Release/`
 - [x] No Screenshake
 - [x] No Fall Damage
 - [x] No Detection
+- [ ] Client Move
+- [ ] Fly
 
 - [ ] Mods for other players in game (No there won't griefing options so don't ask)
 
@@ -55,7 +58,8 @@ Output: `Build/Debug/` or `Build/Release/`
     - [x] Skeleton
     - [x] Highlighting
 - (Cash / Deposit Box / Keycards)
-    - [x] Items
+    - [x] Names
+    - [ ] Bounding Boxes
 
 ### Aimbot
 - [x] Snapping
@@ -76,6 +80,7 @@ Output: `Build/Debug/` or `Build/Release/`
 - [ ] Player Hud customisation
 - [ ] Menu customisation
 - [ ] More language support
+- [ ] Other packet sniffing and manipulating features
 
 ## Usage
 

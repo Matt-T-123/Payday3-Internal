@@ -21,6 +21,24 @@ struct WeaponDataBackupEntry_t
     SDK::ESBZFireMode m_eFireMode;
 };
 
+struct AttrDataBackupEntry_t
+{
+	SDK::FGameplayAttributeData m_flHealth;
+	SDK::FGameplayAttributeData m_flStamina;
+
+	SDK::FGameplayAttributeData m_flPrimaryEquippableAmmoInventory;
+	SDK::FGameplayAttributeData m_flSecondaryEquippableAmmoInventory;
+	SDK::FGameplayAttributeData m_flTertiaryEquippableAmmoInventory;
+
+	SDK::FGameplayAttributeData m_flPrimaryThrowableAmmoInventory;
+	SDK::FGameplayAttributeData m_flSecondaryThrowableAmmoInventory;
+	SDK::FGameplayAttributeData m_flTertiaryThrowableAmmoInventory;
+
+	SDK::FGameplayAttributeData m_flPrimaryToolAmmoInventory;
+	SDK::FGameplayAttributeData m_flSecondaryToolAmmoInventory;
+	SDK::FGameplayAttributeData m_flTertiaryToolAmmoInventory;
+};
+
 class Player : public BaseFeature
 {
 private:
@@ -137,6 +155,8 @@ private:
 	WeaponDataBackupEntry_t* GetWeaponBackupData(SDK::USBZRangedWeaponData* pWeaponData);
 	std::vector<SDK::USBZRangedWeaponData*> GetCurrentWeaponData(SDK::ASBZPlayerCharacter* pLocalChar);
 
+	bool g_bDidBackupAttrData;
+	AttrDataBackupEntry_t* GetAttrBackupData(SDK::ASBZPlayerCharacter* pLocalChar);
 public:
 	bool SetupMenu();
 	bool Setup();
@@ -147,4 +167,5 @@ public:
 };
 
 static std::unordered_map<size_t, WeaponDataBackupEntry_t> g_mapWeaponDataBackup;
+static std::unordered_map<size_t, AttrDataBackupEntry_t> g_attrDataBackup;
 inline std::unique_ptr<Player> pPlayer = std::make_unique<Player>();

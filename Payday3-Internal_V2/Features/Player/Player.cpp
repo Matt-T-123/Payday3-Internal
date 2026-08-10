@@ -46,6 +46,90 @@ bool Player::SetupMenu()
 
 bool Player::Setup()
 {
+	// Godmode toggled off so disable turn off whatever godmode type was selected
+	m_pGodMode->SetOnValueChangedCallback([this](const bool, const bool bNewValue)
+	{
+		SDK::ASBZPlayerCharacter* localChar = Unreal::GetLocalCharacter();
+		if (!localChar)
+			return;
+
+		const int currentType = m_pGodModeType->GetSelectedIndex();
+
+		if (!bNewValue)
+		{
+			if (currentType == 0)
+			{
+				auto* playerAttributeSet = localChar->PlayerAttributeSet;
+				if (!playerAttributeSet)
+					return;
+
+				auto backup = GetAttrBackupData(localChar);
+				if (backup)
+				{
+					playerAttributeSet->Health.CurrentValue = backup->m_flHealth.CurrentValue;
+				}
+			}
+			else if (currentType == 1)
+			{
+				blockDamage(false);
+			}
+		}
+	});
+
+	// Godmode still on but type is changed so disable previous type
+	m_pGodModeType->SetOnValueChangedCallback([this](const int oldIndex, const int newIndex)
+	{
+		if (m_pGodMode->GetValue())
+		{
+			SDK::ASBZPlayerCharacter* localChar = Unreal::GetLocalCharacter();
+			if (!localChar)
+				return;
+
+			if (oldIndex == 0)
+			{
+				auto* playerAttributeSet = localChar->PlayerAttributeSet;
+				if (!playerAttributeSet)
+					return;
+
+				auto backup = GetAttrBackupData(localChar);
+				if (backup)
+				{
+					playerAttributeSet->Health.CurrentValue = backup->m_flHealth.CurrentValue;
+				}
+			}
+			else if (oldIndex == 1)
+			{
+				blockDamage(false);
+			}
+		}
+	});
+
+	m_pInfAmmo->SetOnValueChangedCallback([this](const bool, const bool bNewValue) {
+		if (!bNewValue)
+		{
+			SDK::ASBZPlayerCharacter* localChar = Unreal::GetLocalCharacter();
+			auto* PlayerAttributeSet = localChar->PlayerAttributeSet;
+			if (!PlayerAttributeSet)
+				return;
+
+			auto backup = GetAttrBackupData(localChar);
+			if(backup)
+			{
+				PlayerAttributeSet->PrimaryEquippableAmmoInventory.CurrentValue = backup->m_flPrimaryEquippableAmmoInventory.CurrentValue;
+				PlayerAttributeSet->SecondaryEquippableAmmoInventory.CurrentValue = backup->m_flSecondaryEquippableAmmoInventory.CurrentValue;
+				PlayerAttributeSet->TertiaryEquippableAmmoInventory.CurrentValue = backup->m_flTertiaryEquippableAmmoInventory.CurrentValue;
+
+				PlayerAttributeSet->PrimaryThrowableAmmoInventory.CurrentValue = backup->m_flPrimaryThrowableAmmoInventory.CurrentValue;
+				PlayerAttributeSet->SecondaryThrowableAmmoInventory.CurrentValue = backup->m_flSecondaryThrowableAmmoInventory.CurrentValue;
+				PlayerAttributeSet->TertiaryThrowableAmmoInventory.CurrentValue = backup->m_flTertiaryThrowableAmmoInventory.CurrentValue;
+
+				PlayerAttributeSet->PrimaryToolAmmoInventory.CurrentValue = backup->m_flPrimaryToolAmmoInventory.CurrentValue;
+				PlayerAttributeSet->SecondaryToolAmmoInventory.CurrentValue = backup->m_flSecondaryToolAmmoInventory.CurrentValue;
+				PlayerAttributeSet->TertiaryToolAmmoInventory.CurrentValue = backup->m_flTertiaryToolAmmoInventory.CurrentValue;
+			}
+		}
+	});
+
 	m_pNoRecoil->SetOnValueChangedCallback([this](const bool, const bool bNewValue) {
 		if (!bNewValue)
 		{
@@ -118,9 +202,9 @@ void Player::HandleMenu()
 		m_pTab1Left->AddElement(m_pNoDetection.get());
 
 		// Godmode Type
+		m_pTab1Right->AddElement(m_pGodModeType.get());
 		m_pGodModeType->AddOption("Set");
 		m_pGodModeType->AddOption("Block");
-		m_pTab1Right->AddElement(m_pGodModeType.get());
 
 		m_pTab1Group->AddElement(m_pTab1Left.get());
 		m_pTab1Group->AddElement(m_pTab1Right.get());
@@ -130,7 +214,7 @@ void Player::HandleMenu()
 		//Add a ?x? table then populate it with player(s) info
 		//Need to figure out then best way to interact with the players in the table, maybe a left click player color highlight and then select an action from below the table ?
 		//Edit: Implemented tables, just need to do the populate it with player info and then work on interacting with table rows and selecting actions for the selected player(s).
-		//Edit2: I'll have to make the tables look better first befoore populating cus they look a lil ugly rn
+		//Edit2: I'll have to make the tables look better first before populating cus they look a lil ugly rn
 		m_pPlayerRow1->AddElement(m_pPlayerName.get());
 		m_pPlayerRow1->AddElement(m_pPlayerHealth.get());
 		m_pPlayerTable->AddElement(m_pPlayerRow1.get());
@@ -273,6 +357,51 @@ void Player::InstantReload(bool bEnabled)
 			}
 		}
 	}
+}
+
+bool BackupAttrData()
+{
+	auto* localChar = Unreal::GetLocalCharacter();
+	if (!localChar)
+		return false;
+	
+	auto* PlayerAttributeSet = localChar->PlayerAttributeSet;
+	if (!PlayerAttributeSet)
+		return false;
+
+	g_attrDataBackup.try_emplace(std::hash<std::string>{}(localChar->Name.ToString()), AttrDataBackupEntry_t{
+		.m_flHealth = PlayerAttributeSet->HealthMax,
+		.m_flStamina = PlayerAttributeSet->Stamina,
+
+		.m_flPrimaryEquippableAmmoInventory = PlayerAttributeSet->PrimaryEquippableAmmoInventory,
+		.m_flSecondaryEquippableAmmoInventory = PlayerAttributeSet->SecondaryEquippableAmmoInventory,
+		.m_flTertiaryEquippableAmmoInventory = PlayerAttributeSet->TertiaryEquippableAmmoInventory,
+
+		.m_flPrimaryThrowableAmmoInventory = PlayerAttributeSet->PrimaryThrowableAmmoInventory,
+		.m_flSecondaryThrowableAmmoInventory = PlayerAttributeSet->SecondaryThrowableAmmoInventory,
+		.m_flTertiaryThrowableAmmoInventory = PlayerAttributeSet->TertiaryThrowableAmmoInventory,
+
+		.m_flPrimaryToolAmmoInventory = PlayerAttributeSet->PrimaryToolAmmoInventory,
+		.m_flSecondaryToolAmmoInventory = PlayerAttributeSet->SecondaryToolAmmoInventory,
+		.m_flTertiaryToolAmmoInventory = PlayerAttributeSet->TertiaryToolAmmoInventory
+	});
+	return true;
+}
+
+AttrDataBackupEntry_t* Player::GetAttrBackupData(SDK::ASBZPlayerCharacter* pLocalChar)
+{
+	if (!pLocalChar)
+		return nullptr;
+
+	size_t hash = std::hash<std::string>{}(pLocalChar->Name.ToString());
+
+	auto itrEntry = g_attrDataBackup.find(hash);
+	if (itrEntry == g_attrDataBackup.end())
+	{
+		return nullptr;
+	}
+
+	return &itrEntry->second;
 }
 
 bool BackupWeaponData(){ //copied straight from v1 and modified to work with v2
@@ -470,6 +599,11 @@ void Player::Run()
 	{
 		g_bDidBackupWeaponData = BackupWeaponData();
 	}
+
+	if (!g_bDidBackupAttrData)
+	{
+		g_bDidBackupAttrData = BackupAttrData();
+	}
 	/////////////////Tab 1///////////////////
 
 	// Godmode
@@ -477,22 +611,16 @@ void Player::Run()
 	{
 		if (auto* localChar = Unreal::GetLocalCharacter())
 		{
-
 			if (m_pGodModeType->GetSelectedIndex() == 0)
 			{
 				auto* PlayerAttributeSet = localChar->PlayerAttributeSet;
-				// Need to change back on disable, too lazy to do rn
-				PlayerAttributeSet->Health.CurrentValue = 200.0f;
+				PlayerAttributeSet->Health.CurrentValue = PlayerAttributeSet->HealthMax.CurrentValue * 10;
 			}
-			else
+			if (m_pGodModeType->GetSelectedIndex() == 1)
 			{
 				blockDamage(true);
 			}
 		}
-	}
-	else
-	{
-		blockDamage(false);
 	}
 
 	//Infinite Stamina
@@ -514,11 +642,11 @@ void Player::Run()
 	//No Screen Shake
 	if (m_pNoScreenshake->GetValue())
 	{
-		auto* camManager = Unreal::GetPlayerCameraManager();
-		if (!camManager)
-			return;
+	 	auto* camManager = Unreal::GetPlayerCameraManager();
+	 	if (!camManager)
+	 		return;
 
-		camManager->StopAllCameraShakes(m_pNoScreenshake->GetValue());
+	 	camManager->StopAllCameraShakes(m_pNoScreenshake->GetValue()); // Doesn't need to be set false since cameramanager updates back without us asking.
 	}
 
 	//No Fall Damage
@@ -562,7 +690,7 @@ void Player::Run()
 	}
 
 	//Infinite Ammo
-	if (m_pInfAmmo->GetValue()) //Needs rework to return ammo back to normal on disable
+	if (m_pInfAmmo->GetValue())
 	{
 		if(auto* localChar = Unreal::GetLocalCharacter())
 		{

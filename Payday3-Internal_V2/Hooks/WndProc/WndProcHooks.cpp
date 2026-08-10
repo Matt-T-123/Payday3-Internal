@@ -102,4 +102,5 @@ void WndProcHooks::Destroy()
         return;
 
     SetWindowLongPtr(hwndWindow, GWLP_WNDPROC, reinterpret_cast<LONG_PTR>(oWndProc));
+    Utils::LogDebug("WndProc removed.");
 }

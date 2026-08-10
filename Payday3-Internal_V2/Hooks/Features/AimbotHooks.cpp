@@ -172,5 +172,5 @@ void AimbotHooks::Destroy()
 	oLocalPlayerGetViewPoint.Remove();
 	oGetPlayerViewPoint.Remove();
 
-	Utils::LogDebug("AimbotHooks removed");
+	Utils::LogDebug("AimbotHooks removed.");
 }

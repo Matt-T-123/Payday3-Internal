@@ -33,7 +33,6 @@ private:
         ElementBase::Style_t{ .iFlags = ImGuiComboFlags_WidthFitPreview });
 
 public:
-    bool SetupMenu();
     void HandleMenu();
     void Run();
     std::string GetName() { return "UI"; };

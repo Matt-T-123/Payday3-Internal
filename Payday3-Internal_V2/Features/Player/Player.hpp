@@ -158,7 +158,6 @@ private:
 	bool g_bDidBackupAttrData;
 	AttrDataBackupEntry_t* GetAttrBackupData(SDK::ASBZPlayerCharacter* pLocalChar);
 public:
-	bool SetupMenu();
 	bool Setup();
 	void HandleMenu();
 	void Run();

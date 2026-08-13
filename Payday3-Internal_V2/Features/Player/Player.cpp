@@ -3,47 +3,6 @@
 #include <vector>
 #include <algorithm>
 
-bool Player::SetupMenu()
-{
-	Localization::AddToLocale("ENG", std::initializer_list<std::pair<size_t, std::string>>{
-		{ "PLAYER_BUTTON"Hashed, "Player" },
-		{ "PLAYER_TAB1"Hashed, "Local Player" },
-		{ "PLAYER_TAB2"Hashed, "Players" },
-		{ "PLAYER_TAB3"Hashed, "Weapon Mods" },
-
-		{ "PLAYER_TAB1_LEFT"Hashed, "General" },
-		{ "PLAYER_TAB1_RIGHT"Hashed, "Options" },
-
-		{ "PLAYER_TAB2_LEFT"Hashed, "Details" },
-
-		{ "PLAYER_TAB3_LEFT"Hashed, "Mods" },
-		{ "PLAYER_TAB3_RIGHT"Hashed, "Options" },
-
-		//Tab 1
-		{ "PLAYER_GODMODE_TYPE"Hashed, "Godmode Type" },
-		{ "PLAYER_GODMODE"Hashed, "Godmode" },
-		{ "PLAYER_INF_STAMINA"Hashed, "Infinite Stamina" },
-		{ "PLAYER_INSTA_MELEE"Hashed, "Instant Melee" },
-		{ "PLAYER_NO_SCREENSHAKE"Hashed, "No Screenshake" },
-		{ "PLAYER_NO_FALLDAMAGE"Hashed, "No Fall Damage" },
-		{ "PLAYER_NO_DETECTION"Hashed, "No Detection" },
-
-		//Tab2
-		{ "PLAYER_TABLE"Hashed, "Players" },
-		{ "PLAYER_TABLE_ROW1"Hashed, "Row 1" },
-
-		//Tab3
-		{ "PLAYER_INSTA_RELOAD"Hashed, "Instant Reload" },
-		{ "PLAYER_INF_AMMO"Hashed, "Infinite Ammo" },
-		{ "PLAYER_NO_RECOIL"Hashed, "No Recoil" },
-		{ "PLAYER_NO_SPREAD"Hashed, "No Spread" },
-		{ "PLAYER_FIRE_RATE_SLIDER"Hashed, "Fire Rate" },
-		{ "PLAYER_FIRE_RATE"Hashed, "Fire Rate" }
-	});
-
-	return true;
-}
-
 bool Player::Setup()
 {
 	// Godmode toggled off so disable turn off whatever godmode type was selected

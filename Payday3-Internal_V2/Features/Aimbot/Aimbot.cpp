@@ -37,29 +37,6 @@ int Aimbot::CurrentAimbotType()
 	return m_pAimbotType->GetSelectedIndex(); // 0 = Silent, 1 = Snapping
 }
 
-bool Aimbot::SetupMenu()
-{
-	Localization::AddToLocale("ENG", std::initializer_list<std::pair<size_t, std::string>>{
-		{ "AIMBOT_BUTTON"Hashed, "Aimbot" },
-		{ "AIMBOT_TAB1"Hashed, "Main" },
-		{ "AIMBOT_TAB1_LEFT"Hashed, "Aimbot" },
-		{ "AIMBOT_TAB1_RIGHT"Hashed, "Options" },
-
-		{ "AIMBOT_ENABLED"Hashed, "Aimbot" },
-		{ "AIMBOT_VISIBLE_CHECK"Hashed, "Visible Check" },
-		{ "AIMBOT_FOV_ENABLED"Hashed, "FOV Circle" },
-
-		{ "AIMBOT_HOTKEY"Hashed, "Aimbot Hotkey" },
-		{ "AIMBOT_TYPE"Hashed, "Aimbot Type" },
-		{ "AIMBOT_TARGET"Hashed, "Target" },
-		{ "AIMBOT_FOV_COLOR"Hashed, "FOV Color" },
-		{ "AIMBOT_FOV"Hashed, "FOV" },
-		{ "AIMBOT_SMOOTHING"Hashed, "Smoothing" }
-	});
-
-	return true;
-}
-
 void Aimbot::HandleMenu()
 {
 	static std::once_flag onceflag;

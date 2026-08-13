@@ -44,7 +44,6 @@ private:
 	std::unique_ptr<SliderInt> m_pSmoothing = std::make_unique<SliderInt>("AIMBOT_SMOOTHING", "AIMBOT_SMOOTHING"Hashed, ElementBase::Style_t{ .iFlags = ImGuiComboFlags_WidthFitPreview }, 10, 0, 100);
 
 public:
-	bool SetupMenu();
 	void HandleMenu();
 	void Render();
 	void Run();

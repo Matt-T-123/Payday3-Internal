@@ -122,7 +122,6 @@ private:
 	Types::EnemyType GetEnemyType(SDK::AActor* actor);
 
 public:
-	bool SetupMenu();
 	void UpdateMenuVisibility();
 	void HandleMenu();
 	void Render();

@@ -1,12 +1,9 @@
-name: Release
+name: Pre-Release
 on:
-  push:
-    tags:
-      - 'v*.*.*'
   workflow_dispatch:
     inputs:
       version:
-        description: 'Release version (e.g., v1.0.0)'
+        description: 'Pre-release version (e.g., v1.0.0b)'
         required: true
         type: string
       is_wingdk:
@@ -17,7 +14,7 @@ on:
 permissions:
   contents: write
 jobs:
-  build-release:
+  build-prerelease:
     runs-on: windows-latest
     steps:
     - name: Checkout Repository with Submodules
@@ -67,20 +64,10 @@ jobs:
       run: |
         Compress-Archive -Path release-package\* -DestinationPath Payday3-Internal${{ steps.wingdk.outputs.SUFFIX }}-Release.zip
       shell: pwsh
-    - name: Get version
-      id: get_version
-      run: |
-        if ("${{ github.event_name }}" -eq "workflow_dispatch") {
-          $version = "${{ github.event.inputs.version }}"
-        } else {
-          $version = "${{ github.ref_name }}"
-        }
-        echo "VERSION=$version" >> $env:GITHUB_OUTPUT
-      shell: pwsh
     - name: Generate changelog
       id: changelog
       run: |
-        $currentVersion = "${{ steps.get_version.outputs.VERSION }}"
+        $currentVersion = "${{ github.event.inputs.version }}"
         $allTags = git tag --sort=-creatordate
         if ($allTags -contains $currentVersion) {
           $idx = [array]::IndexOf($allTags, $currentVersion)
@@ -99,16 +86,18 @@ jobs:
         $log >> $env:GITHUB_OUTPUT
         "EOF" >> $env:GITHUB_OUTPUT
       shell: pwsh
-    - name: Create Release
+    - name: Create Pre-Release
       uses: softprops/action-gh-release@v1
       with:
-        tag_name: ${{ steps.get_version.outputs.VERSION }}
-        name: Release ${{ steps.get_version.outputs.VERSION }}
+        tag_name: ${{ github.event.inputs.version }}
+        name: Pre-Release ${{ github.event.inputs.version }}
         draft: false
-        prerelease: false
+        prerelease: true
         files: Payday3-Internal${{ steps.wingdk.outputs.SUFFIX }}-Release.zip
         body: |
-          ## Payday3-Internal ${{ steps.get_version.outputs.VERSION }}${{ steps.wingdk.outputs.IS_WINGDK == 'true' && ' (WinGDK)' || '' }}
+          ## Payday3-Internal ${{ github.event.inputs.version }}${{ steps.wingdk.outputs.IS_WINGDK == 'true' && ' (WinGDK)' || '' }} (Pre-Release)
+          
+          ⚠️ This is a pre-release build and may be unstable.
           
           ### Packages
           - **Payday3-Internal${{ steps.wingdk.outputs.SUFFIX }}-Release.zip** - Contains DLL + PDB
@@ -122,7 +111,6 @@ jobs:
           3. Follow the instructions in README.md
           
           ### Build Information
-          - Build Date: ${{ github.event.head_commit.timestamp }}
           - Commit: ${{ github.sha }}
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

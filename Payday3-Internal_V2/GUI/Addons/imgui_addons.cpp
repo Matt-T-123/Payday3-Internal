@@ -661,33 +661,47 @@ bool ImAdd::Togglebutton(const char* label, bool* v)
     return pressed;
 }
 
-bool ImAdd::ColorEdit4(const char* label, float col[4])
+bool ImAdd::ColorEdit4(const char *label, float col[4])
 {
-    ImGuiWindow* window = GetCurrentWindow();
+    ImGuiWindow *window = GetCurrentWindow();
     if (window->SkipItems)
         return false;
 
-    ImGuiContext& g = *GImGui;
-    const ImGuiStyle& style = g.Style;
+    ImGuiContext &g = *GImGui;
+    const ImGuiStyle &style = g.Style;
     const ImVec2 label_size = CalcTextSize(label, NULL, true);
     const ImVec4 col_v4(col[0], col[1], col[2], col[3]);
 
-    ImGuiColorEditFlags flags = ImGuiColorEditFlags_AlphaBar | ImGuiColorEditFlags_AlphaPreview | ImGuiColorEditFlags_NoInputs | ImGuiColorEditFlags_NoTooltip | ImGuiColorEditFlags_NoOptions | ImGuiColorEditFlags_NoInputs | ImGuiColorEditFlags_NoLabel | ImGuiColorEditFlags_NoSidePreview;
+    ImGuiColorEditFlags flags =
+        ImGuiColorEditFlags_AlphaBar |
+        ImGuiColorEditFlags_AlphaPreview |
+        ImGuiColorEditFlags_NoInputs |
+        ImGuiColorEditFlags_NoTooltip |
+        ImGuiColorEditFlags_NoOptions |
+        ImGuiColorEditFlags_NoLabel |
+        ImGuiColorEditFlags_NoSidePreview;
 
     BeginGroup();
 
     bool result = ColorButton(label, col_v4, flags, ImVec2(g.FontSize * 2, g.FontSize));
+
+    ImGui::PushID(label);
+
     if (result)
     {
         OpenPopup("picker");
     }
+
     if (BeginPopup("picker"))
     {
         ColorPicker4(label, col, flags);
         EndPopup();
     }
 
-    if (label_size.x > 0) {
+    ImGui::PopID();
+
+    if (label_size.x > 0)
+    {
         SameLine(style.ItemInnerSpacing.x + g.FontSize * 2);
         Text(label);
     }

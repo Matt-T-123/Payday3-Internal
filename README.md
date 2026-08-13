@@ -39,6 +39,7 @@ Output: `Build/Debug/` or `Build/Release/`
 - [x] No Detection
 - [ ] Client Move
 - [ ] Fly
+- [ ] Revive
 
 - [ ] Mods for other players in game (No there won't griefing options so don't ask)
 

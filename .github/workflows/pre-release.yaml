@@ -96,6 +96,7 @@ jobs:
         files: Payday3-Internal${{ steps.wingdk.outputs.SUFFIX }}-Release.zip
         body: |
           ## Payday3-Internal ${{ github.event.inputs.version }}${{ steps.wingdk.outputs.IS_WINGDK == 'true' && ' (WinGDK)' || '' }} (Pre-Release)
+          ![GitHub Downloads (all assets, specific tag)](https://img.shields.io/github/downloads/Omega172/Payday3-Internal/${{ steps.get_version.outputs.VERSION }}/total)
           
           ⚠️ This is a pre-release build and may be unstable.
           

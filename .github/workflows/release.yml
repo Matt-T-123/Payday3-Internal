@@ -109,6 +109,7 @@ jobs:
         files: Payday3-Internal${{ steps.wingdk.outputs.SUFFIX }}-Release.zip
         body: |
           ## Payday3-Internal ${{ steps.get_version.outputs.VERSION }}${{ steps.wingdk.outputs.IS_WINGDK == 'true' && ' (WinGDK)' || '' }}
+          ![GitHub Downloads (all assets, specific tag)](https://img.shields.io/github/downloads/Omega172/Payday3-Internal/${{ steps.get_version.outputs.VERSION }}/total)
           
           ### Packages
           - **Payday3-Internal${{ steps.wingdk.outputs.SUFFIX }}-Release.zip** - Contains DLL + PDB

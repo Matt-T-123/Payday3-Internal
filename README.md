@@ -5,8 +5,6 @@
 ![GitHub Downloads (all assets, all releases)](https://img.shields.io/github/downloads/Omega172/Payday3-Internal/total)
 [![Discord](https://img.shields.io/discord/1209142443627257856)](https://discord.gg/zc8E7dYYRe)
 
-A cheat for Payday 3 targeting the steam build.
-
 Download the latest DLL from [here](https://github.com/Omega172/Payday3-Internal/releases/latest)
 
 For injection I recommend downloading Xenos Injector 2.3.2 from [here](https://www.unknowncheats.me/forum/downloads.php?do=file&id=23686)

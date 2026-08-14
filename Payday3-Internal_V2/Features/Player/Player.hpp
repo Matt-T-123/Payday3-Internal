@@ -103,12 +103,6 @@ private:
 		ElementBase::Style_t{ .eSameLine = ElementBase::ESameLine::Same },
 		ImGuiChildFlags_Border);
 
-	std::unique_ptr<Table> m_pPlayerTable = std::make_unique<Table>(
-		"PLAYER_TABLE", 
-		3, 
-		ImGuiTableFlags_Borders | ImGuiTableFlags_RowBg, 
-		ElementBase::Style_t { .vec2Size = ImVec2( 400.0f, 100.0f) });
-
 	//Tab 1
 	std::unique_ptr<Combo> m_pGodModeType = std::make_unique<Combo>("PLAYER_GODMODE_TYPE", "PLAYER_GODMODE_TYPE"Hashed, ElementBase::Style_t{ .iFlags = ImGuiComboFlags_WidthFitPreview });
 	std::unique_ptr<Checkbox> m_pGodMode = std::make_unique<Checkbox>("PLAYER_GODMODE", "PLAYER_GODMODE"Hashed);
@@ -119,9 +113,7 @@ private:
 	std::unique_ptr<Checkbox> m_pNoDetection = std::make_unique<Checkbox>("PLAYER_NO_DETECTION", "PLAYER_NO_DETECTION"Hashed);
 
 	//Tab 2
-	std::unique_ptr<TableRow> m_pPlayerRow1 = std::make_unique<TableRow>("PLAYER_TABLE_ROW1");
-	std::unique_ptr<_Text> m_pPlayerName = std::make_unique<_Text>("PLAYER_NAME", "Omega");
-	std::unique_ptr<_Text> m_pPlayerHealth = std::make_unique<_Text>("PLAYER_HEALTH", "smells");
+	std::unique_ptr<Table> m_pPlayerTable = std::make_unique<Table>("PLAYER_TABLE", 4, ImGuiTableFlags_Resizable | ImGuiTableFlags_SizingStretchProp, ElementBase::Style_t{ .vec2Size = ImVec2(-10.0f, -200.0f) });
 
 	//Tab 3
 	std::unique_ptr<Checkbox> m_pInstaReload = std::make_unique<Checkbox>("PLAYER_INSTA_RELOAD", "PLAYER_INSTA_RELOAD"Hashed);

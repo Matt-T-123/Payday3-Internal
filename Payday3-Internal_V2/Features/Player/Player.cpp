@@ -174,11 +174,27 @@ void Player::HandleMenu()
 		//Need to figure out then best way to interact with the players in the table, maybe a left click player color highlight and then select an action from below the table ?
 		//Edit: Implemented tables, just need to do the populate it with player info and then work on interacting with table rows and selecting actions for the selected player(s).
 		//Edit2: I'll have to make the tables look better first before populating cus they look a lil ugly rn
-		m_pPlayerRow1->AddElement(m_pPlayerName.get());
-		m_pPlayerRow1->AddElement(m_pPlayerHealth.get());
-		m_pPlayerTable->AddElement(m_pPlayerRow1.get());
-		
+		//Edit3: They're a bit better now and changed the functionality a bit to allow for more dynamic table creation and population.
+		// I still need to make the color fill the rest of the table instead of just leaving blank space around the table
 		m_pTab2Left->AddElement(m_pPlayerTable.get());
+
+		m_pPlayerTable->SetColumn(0, "Name");
+		m_pPlayerTable->SetColumn(1, "Health");
+		m_pPlayerTable->SetColumn(2, "Distance");
+		m_pPlayerTable->SetColumn(3, "Status");
+
+		m_pPlayerTable->AddRow({
+			"Omega",
+			"100",
+			"125m",
+			"Alive"
+		});
+		m_pPlayerTable->AddRow({
+			"Bob",
+			"75",
+			"84m",
+			"Alive"
+		});
 
 		m_pTab2Group->AddElement(m_pTab2Left.get());
 

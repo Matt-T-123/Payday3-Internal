@@ -69,7 +69,6 @@ public:
 		Spacing,
 		Text,
 		Table,
-		TableRow,
 	};
 
 	enum class ESameLine : uint8_t
@@ -2059,13 +2058,30 @@ public:
 
 class Table : public ElementBase
 {
+public:
+	struct Cell
+	{
+		std::string sText;
+		ElementBase* pElement = nullptr;
+	};
+
+	struct Column
+	{
+		std::string sName;
+		ImGuiTableColumnFlags Flags =
+			ImGuiTableColumnFlags_WidthStretch;
+
+		float fWidth = 0.0f;
+	};
+
 protected:
-	int m_iColumns;
-	ImGuiTableFlags m_TableFlags;
-	std::vector<std::string> m_Columns;
+	int m_iColumns = 0;
+	ImGuiTableFlags m_TableFlags = 0;
+
+	std::vector<Column> m_Columns;
+	std::vector<std::vector<Cell>> m_Rows;
 
 public:
-
 	Table(
 		std::string sUnique,
 		int columns,
@@ -2073,10 +2089,12 @@ public:
 		Style_t stStyle = {}
 	)
 	{
-		m_sUnique = sUnique;
+		m_sUnique = std::move(sUnique);
 		m_iColumns = columns;
 		m_TableFlags = flags;
 		m_stStyle = stStyle;
+
+		m_Columns.resize(m_iColumns);
 	}
 
 	constexpr EElementType GetType() const override
@@ -2084,57 +2102,77 @@ public:
 		return EElementType::Table;
 	}
 
-	void AddColumn(const std::string& sName)
+	void SetColumn(int iColumn, const std::string& sName, ImGuiTableColumnFlags flags = ImGuiTableColumnFlags_WidthStretch, float fWidth = 0.0f)
 	{
-		m_Columns.push_back(sName);
+		if (iColumn < 0 || iColumn >= m_iColumns)
+			return;
+
+		m_Columns[iColumn].sName = sName;
+		m_Columns[iColumn].Flags = flags;
+		m_Columns[iColumn].fWidth = fWidth;
 	}
 
-	void Render() override
-{
-	if (!m_stStyle.bVisible)
-		return;
-
-	ImGui::BeginChild(
-		m_sUnique.c_str(),
-		m_stStyle.vec2Size,
-		false
-	);
-
-	if (ImGui::BeginTable(
-		m_sUnique.c_str(),
-		m_iColumns,
-		m_TableFlags,
-		m_stStyle.vec2Size
-	))
+	int AddRow()
 	{
-		for (const auto& column : m_Columns)
-			ImGui::TableSetupColumn(column.c_str());
+		m_Rows.emplace_back(m_iColumns);
 
-		if (!m_Columns.empty())
-			ImGui::TableHeadersRow();
-
-		RenderChildren();
-
-		ImGui::EndTable();
+		return static_cast<int>(m_Rows.size() - 1);
 	}
 
-	ImGui::EndChild();
-}
-};
-
-class TableRow : public ElementBase
-{
-public:
-
-	TableRow(std::string sUnique, Style_t stStyle = {})
+	int AddRow(const std::vector<std::string>& vecCells)
 	{
-		m_sUnique = sUnique;
-		m_stStyle = stStyle;
+		const int iRow = AddRow();
+
+		for (int iColumn = 0;
+			iColumn < m_iColumns &&
+			iColumn < static_cast<int>(vecCells.size());
+			++iColumn)
+		{
+			m_Rows[iRow][iColumn].sText = vecCells[iColumn];
+		}
+
+		return iRow;
 	}
 
-	constexpr EElementType GetType() const override
+	void SetCell(int iRow, int iColumn, const std::string& sText)
 	{
-		return EElementType::TableRow;
+		if (!IsValidCell(iRow, iColumn))
+			return;
+
+		m_Rows[iRow][iColumn].sText = sText;
+		m_Rows[iRow][iColumn].pElement = nullptr;
+	}
+
+	void SetCell(int iRow, int iColumn, ElementBase* pElement)
+	{
+		if (!IsValidCell(iRow, iColumn))
+			return;
+
+		m_Rows[iRow][iColumn].sText.clear();
+		m_Rows[iRow][iColumn].pElement = pElement;
+	}
+
+	void ClearCell(int iRow, int iColumn)
+	{
+		if (!IsValidCell(iRow, iColumn))
+			return;
+
+		m_Rows[iRow][iColumn] = {};
+	}
+
+	void Clear()
+	{
+		m_Rows.clear();
+	}
+
+	int GetRowCount() const
+	{
+		return static_cast<int>(m_Rows.size());
+	}
+
+	int GetColumnCount() const
+	{
+		return m_iColumns;
 	}
 
 	void Render() override
@@ -2142,16 +2180,157 @@ public:
 		if (!m_stStyle.bVisible)
 			return;
 
-		ImGui::TableNextRow();
+		ImGuiStyle& style = ImGui::GetStyle();
 
-		for (ElementBase* pElement : m_Children)
+		const float rounding = style.ChildRounding;
+		const float borderSize = style.WindowBorderSize;
+
+		ImGui::PushStyleVar(
+			ImGuiStyleVar_WindowPadding,
+			ImVec2(0.0f, 0.0f)
+		);
+
+		ImGui::PushStyleVar(
+			ImGuiStyleVar_ChildRounding,
+			rounding
+		);
+
+		ImGui::BeginChild(
+			(m_sUnique + "_CHILD").c_str(),
+			m_stStyle.vec2Size,
+			true,
+			ImGuiWindowFlags_NoScrollbar |
+			ImGuiWindowFlags_NoScrollWithMouse
+		);
+
+		ImVec2 childPos = ImGui::GetWindowPos();
+		ImVec2 childSize = ImGui::GetWindowSize();
+
+		const float cornerInset = rounding + borderSize;
+
+		ImGui::PushClipRect(
+			ImVec2(
+				childPos.x + borderSize,
+				childPos.y + borderSize
+			),
+			ImVec2(
+				childPos.x + childSize.x - borderSize,
+				childPos.y + childSize.y - borderSize
+			),
+			true
+		);
+
+		ImGui::PushStyleVar(
+			ImGuiStyleVar_CellPadding,
+			ImVec2(10.0f, 8.0f)
+		);
+
+		ImGuiTableFlags flags = m_TableFlags;
+
+		flags |= ImGuiTableFlags_RowBg;
+		flags |= ImGuiTableFlags_BordersInnerH;
+		flags |= ImGuiTableFlags_BordersInnerV;
+		flags &= ~ImGuiTableFlags_BordersOuter;
+
+		if (ImGui::BeginTable(
+			(m_sUnique + "_TABLE").c_str(),
+			m_iColumns,
+			flags,
+			ImVec2(0.0f, 0.0f)
+		))
 		{
-			if (!pElement)
-				continue;
+			for (int iColumn = 0; iColumn < m_iColumns; ++iColumn)
+			{
+				const Column& column = m_Columns[iColumn];
 
-			ImGui::TableNextColumn();
+				ImGui::TableSetupColumn(
+					column.sName.empty()
+						? "##Column"
+						: column.sName.c_str(),
+					column.Flags,
+					column.fWidth
+				);
+			}
 
-			pElement->Render();
+			bool bHasHeader = false;
+
+			for (const Column& column : m_Columns)
+			{
+				if (!column.sName.empty())
+				{
+					bHasHeader = true;
+					break;
+				}
+			}
+
+			if (bHasHeader)
+			{
+				ImGui::TableNextRow(ImGuiTableRowFlags_Headers);
+
+				for (int iColumn = 0; iColumn < m_iColumns; ++iColumn)
+				{
+					ImGui::TableSetColumnIndex(iColumn);
+
+					if (iColumn == 0)
+						ImGui::Indent(12.0f);
+
+					const char* sName =
+						m_Columns[iColumn].sName.empty()
+							? "##Column"
+							: m_Columns[iColumn].sName.c_str();
+
+					ImGui::TableHeader(sName);
+
+					if (iColumn == 0)
+						ImGui::Unindent(12.0f);
+				}
+			}
+
+			for (auto& row : m_Rows)
+			{
+				ImGui::TableNextRow();
+
+				for (int iColumn = 0; iColumn < m_iColumns; ++iColumn)
+				{
+					ImGui::TableSetColumnIndex(iColumn);
+
+					if (iColumn == 0)
+						ImGui::Indent(12.0f);
+
+					Cell& cell = row[iColumn];
+
+					if (cell.pElement)
+					{
+						cell.pElement->Render();
+					}
+					else if (!cell.sText.empty())
+					{
+						ImGui::TextUnformatted(cell.sText.c_str());
+					}
+
+					if (iColumn == 0)
+						ImGui::Unindent(12.0f);
+				}
+			}
+
+			ImGui::EndTable();
 		}
+
+		ImGui::PopStyleVar();
+		ImGui::PopClipRect();
+
+		ImGui::EndChild();
+
+		ImGui::PopStyleVar(2);
+	}
+
+private:
+	bool IsValidCell(int iRow, int iColumn) const
+	{
+		return
+			iRow >= 0 &&
+			iRow < static_cast<int>(m_Rows.size()) &&
+			iColumn >= 0 &&
+			iColumn < m_iColumns;
 	}
 };

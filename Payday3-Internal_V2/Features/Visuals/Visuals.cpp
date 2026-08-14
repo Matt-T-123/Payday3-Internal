@@ -41,52 +41,6 @@ namespace
     }
 }
 
-bool Visuals::SetupMenu()
-{
-    Localization::AddToLocale("ENG", std::initializer_list<std::pair<size_t, std::string>>{
-        { "VISUALS_BUTTON"Hashed, "Visuals" },
-        { "VISUALS_TAB1"Hashed, "ESP" },
-        { "VISUALS_TAB1_LEFT"Hashed, "ESP" },
-        { "VISUALS_TAB1_RIGHT"Hashed, "Colors" },
-        { "VISUALS_TAB1_BOTTOM"Hashed, "Filters" },
-
-        { "VISUALS_BOUNDING_BOX"Hashed, "Bounding Box" },
-        { "VISUALS_BOUNDING_BOX_COP_COLOR"Hashed, "Bounding Box Cop Color" },
-        { "VISUALS_BOUNDING_BOX_CIVILIAN_COLOR"Hashed, "Bounding Box Civilian Color" },
-
-        { "VISUALS_NAME"Hashed, "Name" },
-        { "VISUALS_NAME_COP_COLOR"Hashed, "Name Cop Color" },
-        { "VISUALS_NAME_CIVILIAN_COLOR"Hashed, "Name Civilian Color" },
-
-        { "VISUALS_DISTANCE"Hashed, "Distance" },
-        { "VISUALS_DISTANCE_COP_COLOR"Hashed, "Distance Cop Color" },
-        { "VISUALS_DISTANCE_CIVILIAN_COLOR"Hashed, "Distance Civilian Color" },
-
-        { "VISUALS_HEALTH_BAR"Hashed, "Health Bar" },
-        { "VISUALS_HEALTH_BAR_COP_COLOR"Hashed, "Health Bar Cop Color" },
-        { "VISUALS_HEALTH_BAR_CIVILIAN_COLOR"Hashed, "Health Bar Civilian Color" },
-
-        { "VISUALS_ARMOR_BAR"Hashed, "Armor Bar" },
-        { "VISUALS_ARMOR_BAR_COLOR"Hashed, "Armor Bar Color" },
-
-        { "VISUALS_SKELETON"Hashed, "Skeleton" },
-        { "VISUALS_SKELETON_COP_COLOR"Hashed, "Skeleton Cop Color" },
-        { "VISUALS_SKELETON_CIVILIAN_COLOR"Hashed, "Skeleton Civilian Color" },
-
-        { "VISUALS_HIGHLIGHT"Hashed, "Highlight" },
-
-        { "VISUALS_ITEM"Hashed, "Items" },
-        { "VISUALS_ITEM_CASH_COLOR"Hashed, "Cash Color" },
-        { "VISUALS_ITEM_DEPOSITBOX_COLOR"Hashed, "Deposit Box Color" },
-        { "VISUALS_ITEM_KEYCARD_COLOR"Hashed, "Keycard Color" },
-
-        { "VISUALS_FILTERS"Hashed, "" },
-        { "VISUALS_ITEM_FILTERS"Hashed, "" }
-    });
-
-    return true;
-}
-
 void Visuals::UpdateMenuVisibility()
 {
     const bool copSelected = m_pFilters->IsSelected(0);

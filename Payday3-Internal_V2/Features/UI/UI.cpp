@@ -1,21 +1,6 @@
 #include "pch.h"
 #include "UI.hpp"
 
-bool UI::SetupMenu()
-{
-	Localization::AddToLocale("ENG", std::initializer_list<std::pair<size_t, std::string>>{
-		{ "UI"Hashed, "UI" },
-		{ "UI_BUTTON"Hashed, "UI" },
-		{ "UI_MAIN"Hashed, "Main" },
-		{ "UI_UNLOAD_BUTTON"Hashed, "Unload" },
-		{ "UI_CONSOLE_SHOW"Hashed, "Show Console" },
-		{ "UI_CONSOLE_HIDE"Hashed, "Hide Console" },
-		{ "UI_LANGUAGE"Hashed, "Language" }
-	});
-
-	return true;
-}
-
 void UI::HandleMenu()
 {
 	static std::once_flag onceflag;

@@ -66,6 +66,12 @@ inline void SetupStyle()
 
     style.Colors[ImGuiCol_TitleBg] = style.Colors[ImGuiCol_ChildBg];
     style.Colors[ImGuiCol_TitleBgActive] = style.Colors[ImGuiCol_TitleBg];
+
+    style.Colors[ImGuiCol_TableHeaderBg] = ImAdd::HexToColorVec4(0x292929, 1.0f);
+    style.Colors[ImGuiCol_TableBorderStrong] = ImAdd::HexToColorVec4(0x323232, 1.0f);
+    style.Colors[ImGuiCol_TableBorderLight] = ImAdd::HexToColorVec4(0x292929, 1.0f);
+    style.Colors[ImGuiCol_TableRowBg] = ImAdd::HexToColorVec4(0x202020, 1.0f);
+    style.Colors[ImGuiCol_TableRowBgAlt] = ImAdd::HexToColorVec4(0x1A1A1A, 1.0f);
 }
 
 inline void ImportFonts()

@@ -1,8 +1,8 @@
 add_rules("mode.debug", "mode.release")
 
--- =========================================================
--- Build options
--- =========================================================
+if is_mode("debug") then
+    set_symbols("debug", "edit")
+end
 
 option("avx2")
     set_default(true)
@@ -10,121 +10,104 @@ option("avx2")
     set_description("Enable AVX2 optimizations")
 option_end()
 
-option("avx512")
-    set_default(false)
+option("unreal")
+    set_default(true)
     set_showmenu(true)
-    set_description("Enable AVX512 optimizations");
+    set_description("Enable compilation of the Unreal target interface")
 option_end()
 
-option("avec")
+option("unity")
     set_default(false)
     set_showmenu(true)
-    set_description("Enable all vector extensions")
+    set_description("Enable compilation of the Unity target interface")
 option_end()
 
--- =========================================================
--- Global configuration
--- =========================================================
+option("proxy_dll_name")
+    set_default("version.dll")
+    set_showmenu(true)
+    set_description("Filename the Proxy target builds as, so it loads in place of a real system DLL the game already loads")
+option_end()
 
-set_languages("c++latest")
+set_runtimes(is_mode("debug") and "MTd" or "MT")
 
-set_targetdir(is_mode("debug") and "Build/Debug" or "Build/Release")
+add_requires("vcpkg::freetype", {configs = {debug = is_mode("debug")}})
+add_requires("vcpkg::nlohmann-json", {configs = {debug = is_mode("debug")}})
+add_requires("vcpkg::polyhook2", {configs = {debug = is_mode("debug")}})
 
-if is_mode("debug") then
-    set_symbols("debug")
-    set_optimize("none")
-    set_runtimes("MDd")
-    add_cxflags("/MDd")
-    add_defines("_DEBUG")
-else
-    set_optimize("fastest")
-    set_runtimes("MD")
-    add_cxflags("/MD")
-end
+local frameworkPackages = {"vcpkg::freetype", "vcpkg::nlohmann-json", "vcpkg::polyhook2"}
 
--- =========================================================
--- Dependencies
--- =========================================================
-
-add_requires("minhook")
-add_requires("nlohmann_json")
-add_requires("libpng")
-add_requires("zlib")
-add_requires("imgui v1.91.9-docking", {
-    configs = {
-        win32 = true,
-        dx12 = true,
-        freetype = false
-    },
-    system = false
-})
-
--- =========================================================
--- Target
--- =========================================================
-
-target("Payday3-Internal_V2")
-    set_kind("shared")
-
-    -- AVX2 support
+target("Shared")
     if has_config("avx2") then
         add_vectorexts("avx2")
     end
 
-    if has_config("avx512") then
-        add_vectorexts("avx512")
+    set_languages("c++latest")
+    set_kind("static")
+    set_targetdir(is_mode("debug") and "Build/Debug" or "Build/Release")
+    set_pcxxheader("Source/Shared/PCH/pch.h")
+
+    add_includedirs("Source/Shared", "Source/Shared/PCH", { public = true })
+    add_includedirs(
+        "Source/Shared/Vendor/ImGui",
+        "Source/Shared/Vendor/ImGui/misc/cpp",
+        "Source/Shared/Vendor/ImGui/misc/freetype",
+        { public = true })
+    add_defines("IMGUI_ENABLE_FREETYPE", { public = true })
+
+    add_files("Source/Shared/**.cpp")
+
+    add_packages(table.unpack(frameworkPackages), { public = true })
+
+target_end()
+
+target("Internal")
+    if has_config("avx2") then
+        add_vectorexts("avx2")
     end
 
-    if has_config("avec") then 
-        add_vectorexts("sse", "sse2", "sse4.2", "avx", "avx2", "avx512")
-    end
+    set_languages("c++latest")
+    set_kind("shared")
+    set_targetdir(is_mode("debug") and "Build/Debug/Internal" or "Build/Release/Internal")
+    set_pcxxheader("Source/Internal/PCH/pch.h")
 
-    -- Precompiled header
-    set_pcxxheader("Payday3-Internal_V2/PCH/pch.h")
+    add_deps("Shared")
+    add_includedirs("Source/Internal", "Source/Internal/PCH")
+    add_includedirs("Source/Internal/Vendor/ImGui/backends")
 
-    -- Includes
-    add_includedirs("Payday3-Internal_V2", "Payday3-Internal_V2/PCH")
+    add_files("Source/Internal/**.cpp")
 
-    -- Core files
-    add_files("Payday3-Internal_V2/dllmain.cpp")
-    add_files("Payday3-Internal_V2/PCH/pch.cpp")
+    if has_config("unreal") then add_files("Source/Internal/Interfaces/Unreal/**.cpp") end
+    if has_config("unity") then add_files("Source/Internal/Interfaces/Unity/**.cpp") end
 
-    -- Utils
-    add_files("Payday3-Internal_V2/Utils/Utils.cpp")
-    add_files("Payday3-Internal_V2/Utils/Console/Console.cpp")
-    add_files("Payday3-Internal_V2/Utils/Logging/Logging.cpp")
-
-    -- Memory
-    add_files("Payday3-Internal_V2/Memory/Memory.cpp")
-    add_files("Payday3-Internal_V2/Memory/Windows/WindowsMemory.cpp")
-
-    -- Systems
-    add_files("Payday3-Internal_V2/Localization/Localization.cpp")
-    add_files("Payday3-Internal_V2/Config/Config.cpp")
-
-    -- Hooks
-    add_files("Payday3-Internal_V2/Hooks/Renderer/D3D11Hooks.cpp")
-    add_files("Payday3-Internal_V2/Hooks/Renderer/D3D12Hooks.cpp")
-    add_files("Payday3-Internal_V2/Hooks/Renderer/RendererHooks.cpp")
-    add_files("Payday3-Internal_V2/Hooks/WndProc/WndProcHooks.cpp")
-    add_files("Payday3-Internal_V2/Hooks/Features/AimbotHooks.cpp")
-
-    -- GUI
-    add_files("Payday3-Internal_V2/GUI/GUI.cpp")
-    add_files("Payday3-Internal_V2/GUI/Addons/imgui_addons.cpp")
-
-    -- Features
-    add_files("Payday3-Internal_V2/Features/*.cpp")
-    add_files("Payday3-Internal_V2/Features/*/*.cpp")
-
-    -- Unreal SDK interfaces
-    add_files("Payday3-Internal_V2/Interfaces/Unreal/SDK/Basic.cpp")
-    add_files("Payday3-Internal_V2/Interfaces/Unreal/SDK/CoreUObject_functions.cpp")
-    add_files("Payday3-Internal_V2/Interfaces/Unreal/SDK/Engine_functions.cpp")
-    add_files("Payday3-Internal_V2/Interfaces/Unreal/SDK/Starbreeze_functions.cpp")
-
-    -- Packages
-    add_packages("minhook", "imgui", "libpng", "zlib", "nlohmann_json")
-
-    -- System libs
+    add_packages(table.unpack(frameworkPackages))
     add_syslinks("d3d11", "d3d12", "dxgi")
+
+target_end()
+
+target("Proxy")
+    if has_config("avx2") then
+        add_vectorexts("avx2")
+    end
+
+    set_languages("c++latest")
+    set_kind("shared")
+    set_targetdir(is_mode("debug") and "Build/Debug/Proxy" or "Build/Release/Proxy")
+    set_filename(get_config("proxy_dll_name"))
+    set_pcxxheader("Source/Internal/PCH/pch.h")
+
+    add_deps("Shared")
+    add_includedirs("Source/Internal", "Source/Internal/PCH")
+    add_includedirs("Source/Internal/Vendor/ImGui/backends")
+    add_defines("PROXY")
+
+    add_files("Source/Internal/**.cpp")
+    add_files("Source/Proxy/*.cpp")
+    add_files("Source/Proxy/Proxy.def")
+
+    if has_config("unreal") then add_files("Source/Internal/Interfaces/Unreal/SDK/**.cpp") end
+    if has_config("unity") then add_files("Source/Internal/Interfaces/Unity/SDK/**.cpp") end
+
+    add_packages(table.unpack(frameworkPackages))
+    add_syslinks("d3d11", "d3d12", "dxgi")
+
+target_end()

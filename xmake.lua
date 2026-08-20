@@ -60,14 +60,14 @@ target("Shared")
 
 target_end()
 
-target("Internal")
+target("Payday-Internal-v2")
     if has_config("avx2") then
         add_vectorexts("avx2")
     end
 
     set_languages("c++latest")
     set_kind("shared")
-    set_targetdir(is_mode("debug") and "Build/Debug/Internal" or "Build/Release/Internal")
+    set_targetdir(is_mode("debug") and "Build/Debug/Payday-Internal-v2" or "Build/Release/Payday-Internal-v2")
     set_pcxxheader("Source/Internal/PCH/pch.h")
 
     add_deps("Shared")

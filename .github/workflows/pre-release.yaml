@@ -39,7 +39,7 @@ jobs:
         xmake config -m release -a x64 -p windows -y
     - name: Build project (Release)
       timeout-minutes: 20
-      run: xmake build Payday3-Internal_V2
+      run: xmake build Payday-Internal-v2
     - name: Determine WinGDK build
       id: wingdk
       run: |
@@ -51,11 +51,18 @@ jobs:
     - name: Package Release artifacts (DLL + PDB)
       run: |
         mkdir release-package
-        xcopy /E /I Build\Release release-package\
+        xcopy /E /I Build\Release\Payday-Internal-v2 release-package\
         if ("${{ steps.wingdk.outputs.IS_WINGDK }}" -eq "true") {
-          Rename-Item -Path release-package\Payday3-Internal_V2.dll -NewName Payday3-Internal_V2-WinGDK.dll
-          if (Test-Path release-package\Payday3-Internal_V2.pdb) {
-            Rename-Item -Path release-package\Payday3-Internal_V2.pdb -NewName Payday3-Internal_V2-WinGDK.pdb
+          $dll = Get-ChildItem release-package\*-WinGDK.dll -ErrorAction SilentlyContinue
+          if (-not $dll) {
+            Write-Error "is_wingdk was checked but no *-WinGDK.dll was found in the build output. Wrong branch checked out?"
+            exit 1
+          }
+        } else {
+          $dll = Get-ChildItem release-package\Payday-Internal-v2.dll -ErrorAction SilentlyContinue
+          if (-not $dll) {
+            Write-Error "Payday-Internal-v2.dll was not found in the build output."
+            exit 1
           }
         }
         echo "Build completed on $(Get-Date -Format 'yyyy-MM-dd HH:mm:ss')" > release-package\BUILD_INFO.txt

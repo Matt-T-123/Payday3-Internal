@@ -16,10 +16,6 @@ struct WeaponDataBackupEntry_t
 	uint32_t m_iProjectilesPerFiredRound;
 	float m_flRoundsPerMinute;
 	SDK::ESBZFireMode m_eFireMode;
-
-	uint32_t m_iMaximumPenetrationCount = 0;
-	bool m_bCanHitEnvironmentAfterPenetration = false;
-	bool m_bCanPenetrateBlocked = false;
 };
 
 struct AttrDataBackupEntry_t
@@ -90,7 +86,6 @@ private:
 	std::unique_ptr<Checkbox> m_pInfAmmo = std::make_unique<Checkbox>("PLAYER_INF_AMMO", "PLAYER_INF_AMMO"Hashed);
 	std::unique_ptr<Checkbox> m_pNoRecoil = std::make_unique<Checkbox>("PLAYER_NO_RECOIL", "PLAYER_NO_RECOIL"Hashed);
 	std::unique_ptr<Checkbox> m_pNoSpread = std::make_unique<Checkbox>("PLAYER_NO_SPREAD", "PLAYER_NO_SPREAD"Hashed);
-	std::unique_ptr<Checkbox> m_pWallbang = std::make_unique<Checkbox>("PLAYER_WALLBANG", "PLAYER_WALLBANG"Hashed);
 	std::unique_ptr<SliderInt> m_pFireRateSlider = std::make_unique<SliderInt>("PLAYER_FIRE_RATE_SLIDER", "PLAYER_FIRE_RATE_SLIDER"Hashed, ElementBase::Style_t{ .vec2Size = ImVec2(100.f, 0.f), .iFlags = ImGuiComboFlags_WidthFitPreview }, 100, 0, 1000);
 	std::unique_ptr<Checkbox> m_pFireRate = std::make_unique<Checkbox>("PLAYER_FIRE_RATE", "PLAYER_FIRE_RATE"Hashed);
 
@@ -132,7 +127,6 @@ public:
 	void Run() override;
 	RadioButtonIcon* GetMenuButton() const { return m_pMenuButton.get(); }
 	std::string GetName() override { return "Player"; };
-	bool IsWallbangEnabled() const { return m_pWallbang && m_pWallbang->GetValue(); }
 };
 
 static std::unordered_map<size_t, WeaponDataBackupEntry_t> g_mapWeaponDataBackup;

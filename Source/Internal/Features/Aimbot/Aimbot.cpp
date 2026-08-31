@@ -41,12 +41,8 @@ void Aimbot::HandleMenu()
 
 		m_pTab1Left->AddElement(m_pAimbotEnabled.get());
 		m_pTab1Left->AddElement(m_pAimbotVisibleCheck.get());
-		m_pTab1Left->AddElement(m_pAimbotWallbang.get());
 		m_pTab1Left->AddElement(m_pAimbotFOVEnabled.get());
-
 		m_pTab1Right->AddElement(m_pAimbotHotkey.get()); // key defaults unbound, bind it via the UI
-		if (m_pAimbotHotkey->GetKey() == ImGuiKey_None)
-			m_pAimbotHotkey->SetMode(Hotkey::EHotkeyMode::AlwaysOn);
 		m_pTab1Right->AddElement(m_pAimbotType.get());
 		m_pTab1Right->AddElement(m_pAimbotTarget.get());
 		m_pAimbotTarget->AddOption("Head");

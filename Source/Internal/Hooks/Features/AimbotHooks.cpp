@@ -46,9 +46,6 @@ static void LearnFirePath(uintptr_t pReturnAddress)
 	if (!bFound)
 		g_vecRetCounts.emplace_back(pReturnAddress, 1ull);
 
-	if (!(GetAsyncKeyState(VK_LBUTTON) & 0x8000))
-		return;
-
 	if (g_vecRetCounts.size() <= 5)
 		return;
 

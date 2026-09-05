@@ -564,7 +564,7 @@ void Player::Run()
 		{
 			auto* Att = localChar->PlayerAttributeSet;
 
-			Att->PrimaryEquippableAmmoInventory.CurrentValue = 999;
+			Att->PrimaryEquippableAmmoInventory.CurrentValue = 999; // Crashing here at the end of a heist
 			Att->SecondaryEquippableAmmoInventory.CurrentValue = 999;
 			Att->TertiaryEquippableAmmoInventory.CurrentValue = 999;
 

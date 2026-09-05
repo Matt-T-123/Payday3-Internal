@@ -127,11 +127,7 @@ bool AimbotHooks::Setup()
 	if (m_bInstalled)
 		return true;
 
-	SDK::UWorld* pWorld = SDK::UWorld::GetWorld();
-	if (!pWorld)
-		return false;
-
-	SDK::APlayerController* pPlayerController = SDK::UGameplayStatics::GetPlayerController(pWorld, 0);
+	SDK::APlayerController* pPlayerController = Unreal::GetPlayerController();
 	if (!pPlayerController)
 		return false;
 

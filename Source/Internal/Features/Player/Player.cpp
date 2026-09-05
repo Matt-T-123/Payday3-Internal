@@ -7,7 +7,8 @@ namespace
 {
 	SDK::ASBZPlayerCharacter* GetLocalCharacter()
 	{
-		return Unreal::GetLocalASBZPlayerCharacter();
+		auto* localCharacter = Unreal::GetLocalASBZPlayerCharacter();
+		return Memory::IsValidObjectPtr(localCharacter) ? localCharacter : nullptr;
 	}
 }
 
@@ -563,8 +564,10 @@ void Player::Run()
 		if (auto* localChar = GetLocalCharacter())
 		{
 			auto* Att = localChar->PlayerAttributeSet;
+			if (!Memory::IsValidObjectPtr(Att))
+				return;
 
-			Att->PrimaryEquippableAmmoInventory.CurrentValue = 999; // Crashing here at the end of a heist
+			Att->PrimaryEquippableAmmoInventory.CurrentValue = 999;
 			Att->SecondaryEquippableAmmoInventory.CurrentValue = 999;
 			Att->TertiaryEquippableAmmoInventory.CurrentValue = 999;
 
